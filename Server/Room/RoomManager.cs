@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Kwicot.Server.ClientLibrary.Models.Enums;
 using Model;
+using Model.Room;
 using Riptide;
+using Server.Core.Models;
+using WindowsFormsApp1;
 using WindowsFormsApp1.Room;
 
-namespace WindowsFormsApp1
+namespace Server.Core.Rooms
 {
     public static class RoomManager
     {
@@ -14,9 +17,19 @@ namespace WindowsFormsApp1
 
         private static Dictionary<string, RoomController> _roomsMap;
 
+        public static RoomSettingPreset[] RoomSettingPresets { get; private set; }
+
         public static async Task Initiailize()
         {
             _roomsMap = new Dictionary<string, RoomController>();
+            RoomSettingPresets = new[]
+            {
+                new RoomSettingPreset() { Type = RoomType.Noob, MinBalance = 20, MaxBalance = 200, StartBet = 2 },
+                new RoomSettingPreset() { Type = RoomType.Amator, MinBalance = 50, MaxBalance = 500, StartBet = 5 },
+                new RoomSettingPreset() { Type = RoomType.Profesional, MinBalance = 100, MaxBalance = 1000, StartBet = 10 },
+                new RoomSettingPreset() { Type = RoomType.Vip, MinBalance = 200, MaxBalance = 2000, StartBet = 20 },
+                new RoomSettingPreset() { Type = RoomType.Custom, MinBalance = -1, MaxBalance = -1, StartBet = -1 },
+            };
             Lobby.OnConnected += OnConnectedToLobby;
         }
         
@@ -113,7 +126,7 @@ namespace WindowsFormsApp1
             {
                 if (clientData.CurrentRoom == null) 
                 {
-                    SendMessage(CreateMessage(ServerToClientId.joinRoomFail)
+                    SendMessage(CreateMessage(ServerToClientId.leftRoomFail)
                             .AddInt((int)ErrorType.NOT_IN_ROOM)
                         , fromClientId);
                     return;
@@ -125,6 +138,9 @@ namespace WindowsFormsApp1
                 clientData.Balance = 0;
                 
                 room.RemoveClient(clientData);
+                
+                SendMessage(CreateMessage(ServerToClientId.leftRoom)
+                    , fromClientId);
 
                 OnRoomStateChanged(room);
                 

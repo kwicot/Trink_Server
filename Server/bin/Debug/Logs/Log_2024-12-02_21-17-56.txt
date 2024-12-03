@@ -1,0 +1,25 @@
+2024-12-02 21:17:56 : Info : FILESHELPER : Loaded file on path: H:\Trink\Sources\Server\Server\bin\Debug\Data\Config.cfg
+2024-12-02 21:17:57 : Info : FIREBASE_SERVICE : Initialized. Access token [ya29.c.c0ASRK0Gb3v95YRui90P2H_wD_0lQ4EwJcSy5L2o81KK45PxGfujZYirRAcvJo4fLah_Znw2zlXU23Lf1zBCixh_pL_EiU0LwdQRlhYYPkfknYBBOXdvdIlEWsT0t2ucr_A8PrhEBAI12nksZdW4_oSmviV16rb6Vv1Qqpr69HUo0lasK5LuAQNyzJHK4Tj5OT00uAubP4eSRNHyfpzX0hjQXd2H2B-hDejwBHshsWtsrBZWsapx0vLavAzMGBLVrziE91R-LEyAcyHZnKr9UmQeeBpDjTMylKkzqhDmi-abQU1BLGFU3ZaKg7cV152i_DmYgRIvgTt51Sk3QcSKfsGHdHver7bOSOxocyKQdpNCsaFrmwbFjiW8G4L385DVzVS8nZk4lg4UU65xm5QMbF4uiM3cRrjqrW1Uw0z863tk4VpIF4VOOQMk3-SwrctRzggojuOSi5bI7IaxqavtaX9JmdI6Xf5r-RayOo8j85djmeanwRh2BtBi_jV2k32Zp-49Qz_gqYuh5kgqRJsuvkysQhu2w5Y8RodQRWSZSlyS0WuyfFFQgkjv7qF2i_oZB51XhlOVRde66toMaq4zchRYJ_pcmpjq_0rvp4hvne76e7hBgSZ9bmd8eM1ZSQxg0ZI9WcFtfrzwY-32oY9siSrRpJagJFquymO4kpY26WB6RJgYecIwYI6o0aeo3x1mtZM0-ZfyQX1i0donvV9c3aekh7Ie03R6Zk---QdU0q_V_UQ_O4rmXfW7VlQq7WJ0c4xF2t2x8gtk1rqf3fBRkW_h7h_mV932cg7YtFxm9aFuoS0VpYxeb2doVZf7rpBzpzt81iW4B7Qsjsvmggxei0qwBkUpljqB-9yakla_yWpnpQ82mXu23IIaB6smkoIhtWeRlF2eZn8ZZ0SsOBizqrbmqapdxsqow2jgfmwcZdou1Ulr15xfl3jMWQ1pF9fQXqJJnfopdy9JceOg4b_Sj0as_hY2gwf8ZY-ttvbhMbYWa9qYjtswSdczU]
+2024-12-02 21:17:57 : Info : FILESHELPER : Cant load file on path: H:\Trink\Sources\Server\Server\bin\Debug\Data\Users.db.  File not found.
+2024-12-02 21:17:57 : Info : SERVER : Initialized
+2024-12-02 21:17:58 : Info : SERVER : Server started on port [80]
+2024-12-02 21:18:19 : Info : SERVER : Server stoped
+2024-12-02 21:19:02 : Info : SERVER : Server started on port [80]
+2024-12-02 21:26:39 : Error : SERVER : Cant access internet connection
+2024-12-02 21:29:42 : Error : SERVER : Cant access internet connection
+2024-12-02 21:30:02 : Error : SERVER : Cant access internet connection
+2024-12-02 21:31:03 : Error : SERVER : Cant access internet connection
+2024-12-02 21:33:03 : Error : SERVER : Cant access internet connection
+2024-12-02 21:35:27 : Error : SERVER : Cant access internet connection
+2024-12-02 21:36:30 : Error : SERVER : Cant access internet connection
+2024-12-02 21:36:30 : Error : SERVER : Cant access internet connection
+2024-12-02 21:36:32 : Error : SERVER : Cant access internet connection
+2024-12-02 21:36:33 : Error : SERVER : Cant access internet connection
+2024-12-02 21:36:34 : Error : SERVER : Cant access internet connection
+2024-12-02 21:36:34 : Error : SERVER : Cant access internet connection
+2024-12-02 21:36:35 : Error : SERVER : Cant access internet connection
+2024-12-02 21:36:35 : Error : SERVER : Cant access internet connection
+2024-12-02 21:36:36 : Error : SERVER : Cant access internet connection
+2024-12-02 21:36:36 : Error : SERVER : Cant access internet connection
+2024-12-02 21:36:38 : Error : SERVER : Cant access internet connection
+2024-12-02 21:36:38 : Error : SERVER : Cant access internet connection

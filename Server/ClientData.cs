@@ -1,7 +1,8 @@
 ﻿using System;
+using Server.Core.Rooms;
 using WindowsFormsApp1.Room;
 
-namespace WindowsFormsApp1
+namespace Server.Core.Models
 {
     public class ClientData
     {
@@ -15,6 +16,6 @@ namespace WindowsFormsApp1
         
         public bool IsConnectedToServer { get; set; }
         public bool IsConnectedToLobby { get; set; }
-        public bool IsConnectedToMaster => IsConnectedToServer && FirebaseId != null;
+        public bool IsConnectedToMaster => IsConnectedToServer && !string.IsNullOrWhiteSpace(FirebaseId);
     }
 }

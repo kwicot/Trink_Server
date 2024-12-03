@@ -1,0 +1,9 @@
+2024-12-02 12:25:53 : Info : FILESHELPER : Loaded file on path: H:\Trink\Sources\Server\Server\bin\Debug\Data\Config.cfg
+2024-12-02 12:25:53 : Info : FIREBASE_SERVICE : Initialized. Access token [ya29.c.c0ASRK0Gasf-TDosN-5pjOcpchG2t8lEXWa_zqtxqDlYsQVMpknoToQXLO7Kczdqqm4WT7ZSASRFfbfNAjHx59PnLSN5Suysm6h1Om-f8gpqrXBky5xGo-Ffpi6oQWBSltLnufYAykF4gWbGQW0pB3JcFItCNkSOMij6oP6cLF3-JKmc3ldFE9w00D_gg_uZrBgjIZteUCiUMoIX2Vkq1uE8pfBDqGk7xoroUAolAflImnpyts4Mc-kcLvW4-0TeiKKJJYNT46YbOfeLseidlKbfKLMlULEiOc5X__LG0cGaGzwgoCJBnQkR0B0ct5_ROiQCDVUimIPOfRoIt0t6swnw7C0KjlP8zxsvOT0iNZIXrj5S9r1EvhCSZ0VQL387Cujt0Ot1VQgnoqrr8YRMk-fh4wl2kxM-Fr1iRI1MRYw1346VgtM2lhBdFhdQxSp9VYbnUqklB4nIaOhl87p_kp9w63lMhIzefQi63MdrMh_BSg7IpgeMbSoJt6VFXu1ZFyqftxtS7nSRxalWdase4wxV-rSqv2cbnZwV3OgUV1Jbjb3Ytud_vIrV0kIFoQkBQ5UoewMd4eSveRx9Q16IYfJVRxr8j85h1c7Oxz52MSdobY_Q9nnj8e68_7cI4BXZdQbQpvYU_od8crv7evFkXhQSZIWqiQbScJFfjQlZ-1pu4YzX0Uajbv_49qw6m74aX_khSv-VciUu2_w_kMOSx5MezzXObcIhI3d-y_b799s-y4iOckY3O1qmORSf7Zd3RnuXJeeQ33usV2RdVezIehxZ3ftrJbBOJRQUzjgXU289227BdgmnFjWojph-VUw85d3e--k9dsOhdwMMesRt36WOrecvSUFrI1Fvoo2ns46z-lQYYRQaIxRuiyFsfUroaYrzBueo1-yRl5hxj5dp1-5g2ie3btloogjQj4zMiaZYs6Mew9us9daf01VzcI-frJ-ly2Y-W_Viz3VRBc4qMg8imxofguM-Jq_Ohid2hdnnB0Ss6Ufbznx3p]
+2024-12-02 12:25:54 : Info : FILESHELPER : Cant load file on path: H:\Trink\Sources\Server\Server\bin\Debug\Data\Users.db.  File not found.
+2024-12-02 12:25:54 : Info : SERVER : Initialized
+2024-12-02 12:25:55 : Info : SERVER : Server started on port [80]
+2024-12-02 12:26:01 : Info : CLIENTMANAGER : Client with id [1] connected
+2024-12-02 12:26:01 : Info : MASTER : Receive message [ConnectToMaster] from [1]
+2024-12-02 12:26:01 : Info : MASTER : Connection fail via already connected
+2024-12-02 12:26:06 : Info : CLIENTMANAGER : Client with id [1] disconnected via TimedOut

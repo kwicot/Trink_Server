@@ -16,7 +16,11 @@ namespace WindowsFormsApp1.Room
         
         public bool AllowWaiting { get; set; }
         public bool IsHide { get; set; }
-
+        
+        public int MinBalance { get; set; }
+        public int MaxBalance { get; set; }
+        public int StartBet { get; set; }
+        
 
         public Message GetMessageData(Message message)
         {
@@ -27,6 +31,9 @@ namespace WindowsFormsApp1.Room
             message.AddInt(RoomTtl);
             message.AddBool(AllowWaiting);
             message.AddBool(IsHide);
+            message.AddInt(MinBalance);
+            message.AddInt(MaxBalance);
+            message.AddInt(StartBet);
             
             return message;
         }
@@ -42,6 +49,10 @@ namespace WindowsFormsApp1.Room
             bool allowWaiting = message.GetBool();
             bool isHide = message.GetBool();
 
+            int minBalance = message.GetInt();
+            int maxBalance = message.GetInt();
+            int startBet = message.GetInt();
+
             return new RoomSettings()
             {
                 RoomName = roomName,
@@ -50,7 +61,10 @@ namespace WindowsFormsApp1.Room
                 PlayerTtl = playerTtl,
                 RoomTtl = roomTtl,
                 AllowWaiting = allowWaiting,
-                IsHide = isHide
+                IsHide = isHide,
+                MinBalance = minBalance,
+                MaxBalance = maxBalance,
+                StartBet = startBet,
             };
         }
     }

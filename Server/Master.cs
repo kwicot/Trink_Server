@@ -3,8 +3,11 @@ using System.Threading.Tasks;
 using Kwicot.Server.ClientLibrary.Models.Enums;
 using Model;
 using Riptide;
+using Server.Core.Models;
+using Server.Core.Rooms;
+using WindowsFormsApp1;
 
-namespace WindowsFormsApp1
+namespace Server.Core
 {
     public static class Master
     {
@@ -20,10 +23,12 @@ namespace WindowsFormsApp1
         [MessageHandler((ushort)ClientToServerId.connectToMaster)]
         public static async void MessageHandler_ConnectToMaster(ushort fromClientId, Message message)
         {
+            Logger.LogInfo(Tag, $"Receive message [ConnectToMaster] from [{fromClientId}]");
             if (ClientManager.List.TryGetValue(fromClientId, out ClientData clientData))
             {
                 if (clientData.IsConnectedToMaster)
                 {
+                    Logger.LogInfo(Tag,"Connection fail via already connected");
                     SendMessage(CreateMessage(ServerToClientId.connectionToMasterFail)
                         .AddInt((int)ErrorType.ALREADY_CONNECTED)
                         , fromClientId);
@@ -40,12 +45,14 @@ namespace WindowsFormsApp1
                         var userData = await UsersDatabase.GetUserData(firebaseId);
                         SendMessage(CreateMessage(ServerToClientId.connectedToMaster)
                             .AddUserData(userData)
+                            .AddRoomSettingsPresets(RoomManager.RoomSettingPresets)
                             , fromClientId);
                         
                         Logger.LogInfo(Tag, $"Client [{fromClientId}] [{clientData.FirebaseId}] connected");
                     }
                     else
                     {
+                        Logger.LogInfo(Tag,"Connection fail via NEED_LOGIN");
                         SendMessage(CreateMessage(ServerToClientId.connectionToMasterFail)
                             .AddInt((int)ErrorType.NEED_LOGIN)
                             , fromClientId);
@@ -57,6 +64,8 @@ namespace WindowsFormsApp1
         [MessageHandler((ushort)ClientToServerId.disconnectFromMaster)]
         public static async void MessageHandler_DisconnectFromMaster(ushort fromClientId, Message message)
         {
+            Logger.LogInfo(Tag, $"Receive message [DisconnectFromMaster] from [{fromClientId}]");
+
             if (ClientManager.List.TryGetValue(fromClientId, out ClientData clientData))
             {
                 if (clientData.IsConnectedToMaster)

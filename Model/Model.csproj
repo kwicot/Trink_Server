@@ -48,10 +48,12 @@
         <Compile Include="MessageExtension.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <Compile Include="Room\RoomInfo.cs" />
+        <Compile Include="Room\RoomSettingPreset.cs" />
         <Compile Include="Room\RoomSettings.cs" />
         <Compile Include="Room\RoomType.cs" />
         <Compile Include="ServerToClientId.cs" />
         <Compile Include="UserData.cs" />
+        <Compile Include="UserProfile.cs" />
     </ItemGroup>
     <ItemGroup>
       <None Include="packages.config" />

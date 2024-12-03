@@ -1,0 +1,116 @@
+{
+  "format": 1,
+  "restore": {
+    "H:\\Trink\\Sources\\Server\\ServerLibrary\\ServerLibrary.csproj": {}
+  },
+  "projects": {
+    "H:\\Trink\\Sources\\Server\\Model\\Model.csproj": {
+      "restore": {
+        "projectUniqueName": "H:\\Trink\\Sources\\Server\\Model\\Model.csproj",
+        "projectName": "Model",
+        "projectPath": "H:\\Trink\\Sources\\Server\\Model\\Model.csproj",
+        "frameworks": {
+          "net48": {
+            "projectReferences": {}
+          }
+        }
+      },
+      "frameworks": {
+        "net48": {}
+      }
+    },
+    "H:\\Trink\\Sources\\Server\\ServerLibrary\\ServerLibrary.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "H:\\Trink\\Sources\\Server\\ServerLibrary\\ServerLibrary.csproj",
+        "projectName": "ServerLibrary",
+        "projectPath": "H:\\Trink\\Sources\\Server\\ServerLibrary\\ServerLibrary.csproj",
+        "packagesPath": "C:\\Users\\kwicot\\.nuget\\packages\\",
+        "outputPath": "H:\\Trink\\Sources\\Server\\ServerLibrary\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\kwicot\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "H:\\Trink\\Sources\\Server\\Server\\Server.csproj": {
+                "projectPath": "H:\\Trink\\Sources\\Server\\Server\\Server.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Google.Apis.Auth": {
+              "target": "Package",
+              "version": "[1.68.0, )"
+            },
+            "RiptideNetworking.Riptide": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.205/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "H:\\Trink\\Sources\\Server\\Server\\Server.csproj": {
+      "restore": {
+        "projectUniqueName": "H:\\Trink\\Sources\\Server\\Server\\Server.csproj",
+        "projectName": "Server",
+        "projectPath": "H:\\Trink\\Sources\\Server\\Server\\Server.csproj",
+        "frameworks": {
+          "net48": {
+            "projectReferences": {
+              "H:\\Trink\\Sources\\Server\\Model\\Model.csproj": {
+                "projectPath": "H:\\Trink\\Sources\\Server\\Model\\Model.csproj"
+              }
+            }
+          }
+        }
+      },
+      "frameworks": {
+        "net48": {}
+      }
+    }
+  }
+}

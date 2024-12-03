@@ -3,9 +3,10 @@ using System.Threading.Tasks;
 using Kwicot.Server.ClientLibrary.Models.Enums;
 using Model;
 using Riptide;
-using WindowsFormsApp1.Room;
+using Server.Core.Models;
+using WindowsFormsApp1;
 
-namespace WindowsFormsApp1
+namespace Server.Core
 {
     public static class Lobby
     {

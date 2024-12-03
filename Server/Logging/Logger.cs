@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Server.Core;
 
 namespace WindowsFormsApp1
 {
@@ -11,6 +12,8 @@ namespace WindowsFormsApp1
         public static bool IsDebug { get; set; }
         
         public static Action OnLogsChanged;
+
+        private static bool _initialized;
         
         public static void Initialize()
         {
@@ -22,10 +25,10 @@ namespace WindowsFormsApp1
             if (!Directory.Exists(saveDirectory))
                 Directory.CreateDirectory(saveDirectory);
             
-            using (var fs = File.Create(_savePath))
-            {
-                // Файл создан
-            }
+            if(Program.Config.WriteLogToFile)
+                File.Create(_savePath).Dispose();
+
+            _initialized = true;
         }
         
         #region Log
@@ -33,6 +36,10 @@ namespace WindowsFormsApp1
         
         public static void Log(string tag, string message)
         {
+            if(!_initialized)
+                return;
+            
+            
             LogData logData = new LogData()
             {
                 DateTime = DateTime.Now,
@@ -42,7 +49,7 @@ namespace WindowsFormsApp1
             };
             
             Logs.Add(logData);
-            File.AppendAllText(_savePath, logData + Environment.NewLine);
+            WriteToFile(logData);
             
             OnLogsChanged?.Invoke();
             
@@ -52,6 +59,9 @@ namespace WindowsFormsApp1
         
         public static void LogInfo(string tag, string message)
         {
+            if(!_initialized)
+                return;
+            
             LogData logData = new LogData()
             {
                 DateTime = DateTime.Now,
@@ -61,7 +71,7 @@ namespace WindowsFormsApp1
             };
             
             Logs.Add(logData);
-            File.AppendAllText(_savePath, logData + Environment.NewLine);
+            WriteToFile(logData);
             
             OnLogsChanged?.Invoke();
             
@@ -71,6 +81,9 @@ namespace WindowsFormsApp1
         
         public static void LogWarning(string tag, string message)
         {
+            if(!_initialized)
+                return;
+            
             LogData logData = new LogData()
             {
                 DateTime = DateTime.Now,
@@ -80,7 +93,8 @@ namespace WindowsFormsApp1
             };
             
             Logs.Add(logData);
-            File.AppendAllText(_savePath, logData + Environment.NewLine);
+            
+            WriteToFile(logData);
             
             OnLogsChanged?.Invoke();
             
@@ -90,6 +104,9 @@ namespace WindowsFormsApp1
         
         public static void LogError(string tag, string message)
         {
+            if(!_initialized)
+                return;
+            
             LogData logData = new LogData()
             {
                 DateTime = DateTime.Now,
@@ -99,12 +116,19 @@ namespace WindowsFormsApp1
             };
             
             Logs.Add(logData);
-            File.AppendAllText(_savePath, logData + Environment.NewLine);
+
+            WriteToFile(logData);
             
             OnLogsChanged?.Invoke();
             
             if(IsDebug)
                 Console.WriteLine(logData);
+        }
+
+        static void WriteToFile(LogData logData)
+        {
+            if(Program.Config.WriteLogToFile)
+                File.AppendAllText(_savePath, logData + Environment.NewLine);
         }
         
         #endregion

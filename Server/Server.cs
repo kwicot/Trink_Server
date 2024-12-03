@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Net.NetworkInformation;
+using System.Threading;
 using System.Threading.Tasks;
-using Kwicot.Server.ClientLibrary.Models.Enums;
 using Riptide;
-using Message = Riptide.Message;
-using Timer = System.Threading.Timer;
+using Riptide.Utils;
+using Server.Core.Models;
+using Server.Core.Rooms;
+using WindowsFormsApp1;
 
-namespace WindowsFormsApp1
+namespace Server.Core
 {
     public static class Server
     {
@@ -23,10 +25,27 @@ namespace WindowsFormsApp1
             _timer = new Timer(TimerTick, DateTime.Now, 0, 10);
             
             _riptideServer = new Riptide.Server();
+            
+            RiptideLogger.Initialize(Log, Log, LogWarning, LogError, false);
+            
             _riptideServer.ClientConnected += ClientManager.OnClientConnected;
             _riptideServer.ClientDisconnected += ClientManager.OnClientDisconnected;
             
             Logger.LogInfo(Tag, "Initialized");
+        }
+
+        static void Log(string message)
+        {
+            //Logger.LogInfo(Tag, message.ToString());
+        }
+        
+        static void LogWarning(string message)
+        {
+            //Logger.LogWarning(Tag, message.ToString());
+        }
+        static void LogError(string message)
+        {
+            //Logger.LogError(Tag, message.ToString());
         }
         
 
@@ -39,7 +58,7 @@ namespace WindowsFormsApp1
             IsRunning = true;
             OnStatusChanged?.Invoke();
             
-            Logger.LogInfo(Tag,"Server started");
+            Logger.LogInfo(Tag,$"Server started on port [{port}]");
         }
         public static async Task Stop()
         {

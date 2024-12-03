@@ -1,0 +1,8 @@
+2024-12-01 23:32:35 : Info : FILESHELPER : Cant load file on path: C:\Users\kwicot\RiderProjects\Server\Server\bin\Debug\Data\Config.cfg.  File not found.
+2024-12-01 23:32:35 : Info : FILESHELPER : File: C:\Users\kwicot\RiderProjects\Server\Server\bin\Debug\Data\Config.cfg saved successfully
+2024-12-01 23:32:35 : Info : FIREBASE_SERVICE : Initialized. Access token [ya29.c.c0ASRK0GYgIlIU9EWSAlYQb6tzUbogveAlZ8e2PLvmK7hqpsClV1kQtWyMdy-yH1xvFJNrGi59DPS8KeEmCMOUzAc3dv76gkL4GNpwBh-paf8dg2rnjYUAKcuzu0PMa92hmlBs7n7HA62sFaXa3wgV4JGLGVhzTRwe1TzUPj6E5DVC9qr5hvWIWnknnFosiPWrtoLdTA_H3SGvNwADHiGnOqKtQCle41_YnseeyzTjGQHmbBdU7BWAl-GHvigMuH5FhZ8KfbVgSf-Llyo6hzNLC-mTM0NdwH95Att1g107fkPyGd1xFjX3iZPllBUUX9PbCoQgLI2x1a6YMxxKGwfAkZK5Es8d7bJtTqLMEGMDRE-Hd4tfBojbE1zsH385A34UhW4g8B_YU-1WXutxfb9llRXVvqe3c4VskOVk6w9dhby3a6J_dzFd3jytkWYn2laF55aMIMyV3awsovQgbkIFS82btVeUkpiVIs2rVSUVmh90ec30-Oj98p-wSZsp42v0O9QZIISnjddyJdV9blIFr4_Iycg72YqdyV1O10y7MY3rmRZ5u3gYuZa8QBasI43qSh-gXf8cjivdsu9RtWlqQMRgQm80Orj273MutQ-vwc5tjjWUjtz8nV-2W2UpgIpoWcRziFUtSgZdS1t2b5wRmYalUt44wXxuxJfdmuQc-Zn-5lr7j1S8p1SVRmvywhqi-lrz3-BvYv3_Imej4d-eld7MeW2BMq8y1I4QawnM7fkkRUmnQMh3g548O8zByciSdeJaaSn46z6Y8tW4Q8en0li9UV_h7t9mjj6ZMRr07MptmajjtJ5YoiBgw-g3xhrI-BQU8qeuaeRopm1hJ9_3y3lj25Y61kISZmsVsop-vVVu9VUBI9zypBt8UOwoJjJvo2p6p1XS_eJU8zk6dR3Or3nibnhgyh0ZfFuJhe3Iv1vVXfyfJjOJmZY722aIn8rpbSJi_X0W3deWls0Q6ngjZmZ2cvd39vQf0vXQo6Mb1bJ_Q28v-3_ebJY]
+2024-12-01 23:32:35 : Info : FILESHELPER : Cant load file on path: C:\Users\kwicot\RiderProjects\Server\Server\bin\Debug\Data\Users.db.  File not found.
+2024-12-01 23:32:35 : Info : SERVER : Initialized
+2024-12-01 23:32:39 : Info : SERVER : Server started
+2024-12-01 23:33:30 : Error : SERVER : Cant access internet connection
+2024-12-01 23:35:38 : Info : SERVER : Server stoped

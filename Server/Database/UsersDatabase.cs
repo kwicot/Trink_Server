@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Model;
+using Server.Core;
 using WindowsFormsApp1.Database;
 
 namespace WindowsFormsApp1
@@ -35,26 +37,38 @@ namespace WindowsFormsApp1
             if(_usersMap.ContainsKey(firebaseId))
                 return _usersMap[firebaseId];
             
-            var data = FirebaseDatabase.GetDataAsync<UserData>(Constants.FirebaseDatabaseUsersPath + firebaseId);
+            var data = await FirebaseDatabase.GetDataAsync<UserData>(Constants.FirebaseDatabaseUsersPath + firebaseId);
         
             if (data == null)
             {
-                var userData = new UserData()
-                {
-                    Balance = Program.Config.RegisterBalance,
-                    NickName = $"Player"
-                };
+                data = CreateNewUserData();
                 
-                await FirebaseDatabase.WriteDataAsync(Constants.FirebaseDatabaseUsersPath + firebaseId, userData);
-                _usersMap.Add(firebaseId, userData);
+                await FirebaseDatabase.WriteDataAsync(Constants.FirebaseDatabaseUsersPath + firebaseId, data);
             }
+            
+            _usersMap.Add(firebaseId, data);
             
             return _usersMap[firebaseId];
         }
 
+        static UserData CreateNewUserData()
+        {
+            return new UserData()
+            {
+                Balance = Program.Config.RegisterBalance,
+                UserProfile = new UserProfile()
+                {
+                    NickName = "Player",
+                    Picture = Array.Empty<byte>()
+                }
+            };
+        }
+
         public static async Task UpdateUserData(string firebaseId, UserData userData)
         {
-            await FirebaseDatabase.WriteDataAsync(Constants.FirebaseDatabaseUsersPath + firebaseId, userData);
+            SaveUsers();
+            
+            //await FirebaseDatabase.WriteDataAsync(Constants.FirebaseDatabaseUsersPath + firebaseId, userData);
         }
 
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using Kwicot.Server.ClientLibrary.Models.Enums;
+using Model.Room;
 using Riptide;
 using WindowsFormsApp1.Room;
 
@@ -11,6 +12,13 @@ namespace Model
 
         public static Message AddUserData(this Message message, UserData value) => value.GetMessageData(message);
         public static UserData GetUserData(this Message message) => UserData.GetDataFromMessage(message);
+
+        #endregion
+        
+        #region UserProfile
+
+        public static Message AddUserProfile(this Message message, UserProfile value) => value.GetMessageData(message);
+        public static UserProfile GetUserProfile(this Message message) => UserProfile.GetDataFromMessage(message);
 
         #endregion
         
@@ -57,6 +65,37 @@ namespace Model
         public static Message AddRoomInfo(this Message message, RoomInfo value) => value.GetMessageData(message);
         public static RoomInfo GetRoomInfo(this Message message) => RoomInfo.GetDataFromMessage(message);
 
+        #endregion
+        
+        #region RoomSettingsPreset
+        
+        public static Message AddRoomSettingsPreset(this Message message, RoomSettingPreset value) => value.GetMessageData(message);
+        public static RoomSettingPreset GetRoomSettingsPreset(this Message message) => RoomSettingPreset.GetDataFromMessage(message);
+        
+        #endregion
+        
+        #region RoomSettingsPresets
+        
+        public static Message AddRoomSettingsPresets(this Message message, RoomSettingPreset[] value)
+        {
+            message.AddInt(value.Length);
+            foreach (var roomSettingPreset in value)
+                message.AddRoomSettingsPreset(roomSettingPreset);
+
+            return message;
+        }
+        public static RoomSettingPreset[] GetRoomSettingsPresets(this Message message)
+        {
+            int count = message.GetInt();
+            RoomSettingPreset[] presets = new RoomSettingPreset[count];
+            for (int i = 0; i < count; i++)
+            {
+                presets[i] = message.GetRoomSettingsPreset();
+            }
+
+            return presets;
+        }
+        
         #endregion
     }
 }

@@ -3,7 +3,7 @@
 namespace Kwicot.Server.ClientLibrary.Models.Enums
 {
     [Serializable]
-    public enum ClientToServerId
+    public enum ClientToServerId : ushort
     {
         connectToMaster = 0,
         disconnectFromMaster = 1,
@@ -14,6 +14,8 @@ namespace Kwicot.Server.ClientLibrary.Models.Enums
         createRoom = 4,
         joinRoom = 5,
         leftRoom = 6,
+        
+        updateUserProfile = 7,
         
     }
 }

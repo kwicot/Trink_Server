@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Model;
+using System.Xml;
 using Newtonsoft.Json;
+using WindowsFormsApp1;
 
-namespace WindowsFormsApp1
+namespace Server.Core
 {
     public static class FilesHelper
     {
@@ -42,7 +42,7 @@ namespace WindowsFormsApp1
         {
             try
             {
-                var json = JsonConvert.SerializeObject(data, Formatting.Indented);
+                var json = JsonConvert.SerializeObject(data);
                 var bytes = Encoding.UTF8.GetBytes(json);
                 
                 File.WriteAllBytes(filePath, bytes);                

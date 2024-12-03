@@ -1,0 +1,27 @@
+2024-12-02 11:49:35 : Info : FILESHELPER : Loaded file on path: H:\Trink\Sources\Server\Server\bin\Debug\Data\Config.cfg
+2024-12-02 11:49:35 : Info : FIREBASE_SERVICE : Initialized. Access token [ya29.c.c0ASRK0GZaPhhn8i_d87-WfCK87RKgsB1R2znNjinklgZbRAcqRCH9LHrvLr_ntMVs2xMVo-aPfJLUNRu95rnWzxDv2IYcczCJw3joUMAgDmcxhHVEona4M6Sc_japjv72JxdOE1HENArFAnffEEiAU98_nIX8FcIKPNu5KgjVBN-lKXqPLDRgOwteiQektIRc2ukFYSSVe2mTvH7P3chuu2CnxTaoIjk4LBA44OfVOK70PQ2PdzDZPsYOA-rUBSYpdNsiC8bhaRw-ofXqoU9vRvxEX5chBUYbPKszgzo6gvqMLDesosjHO2-ghwCwspP0ZLOrfW4Qw1anBzzOq7zXAEBJAz0zfKBQnIy2vyobImHgjFjvAfmloCsfFs8T388Kmf3FYvR09aUjv6tiqMSYfvX00WFbhzYdW4gFe11Bv2J0lisWi915BQcRUlbU-46R8MZQlzplBb9gI7W3WOBY6IohlXnqo4I5ul1WsJI265coVxuiFBvVe5jfitXhcaFpuculdpYmwwj7qeO38FU4qvffoj8tB7jth_u6woMQ68mf8h1yvIfxfpwiQi2V-XoQvcwh-V6mvU56X2d-7ce55rJoFvMnnik8-Wwa6IigZo25z3tub8MWqyS-at8I0Osxhdnejes17xkwkYFU_BuzJc0-3rJ7joFwtQjXhsmvX8ZYfeWquiYdXxJopWbUQ2JO-X5a3r0f0424w408RQ94uYQRgxtcXY8lO3p5Mtq2wSj-8Rmto_3e6zIXa-azqkBjo9Ylv-ccYwqslam175i9rnhleI7s6Of8JVp9luJk3RV1fl9imBRnJ48pM7MvXreyvyFpe1IlwxjZYZ2h0lloryWZ65-htbFloOW07duJjgdXp4dXlqRa1fJgs-5u-8OUnY6XJbWdelzJZ1e8ib8JmvBati8dMVmgflYmp6frMV01M1Me0aosudV6Rkmfkipkgfi_5Sw8g51gwugiJfqavotlJ-d_yjUe-yIYuaR9362gitBJdy7oWR7]
+2024-12-02 11:49:35 : Info : FILESHELPER : Cant load file on path: H:\Trink\Sources\Server\Server\bin\Debug\Data\Users.db.  File not found.
+2024-12-02 11:49:35 : Info : SERVER : Initialized
+2024-12-02 11:49:37 : Info : SERVER : (SERVER): Started on port 80.
+2024-12-02 11:49:37 : Info : SERVER : Server started on port [80]
+2024-12-02 11:49:59 : Info : SERVER : (SERVER): Could not guarantee delivery of a Welcome message after 15 attempts! Disconnecting...
+2024-12-02 11:50:04 : Info : SERVER : (SERVER): Client 192.168.0.101:52404 stopped responding before the connection was fully established!
+2024-12-02 11:59:30 : Info : SERVER : (SERVER): Client 2 (192.168.0.101:52320) connected successfully!
+2024-12-02 11:59:30 : Info : CLIENTMANAGER : Client with id [2] connected
+2024-12-02 11:59:36 : Info : SERVER : (SERVER): Client 2 (192.168.0.101:52320) disconnected: Disconnected.
+2024-12-02 11:59:36 : Info : CLIENTMANAGER : Client with id [2] disconnected via Disconnected
+2024-12-02 12:01:08 : Info : SERVER : (SERVER): Could not guarantee delivery of a Welcome message after 15 attempts! Disconnecting...
+2024-12-02 12:01:13 : Info : SERVER : (SERVER): Client 192.168.0.101:53453 stopped responding before the connection was fully established!
+2024-12-02 12:03:46 : Info : SERVER : (SERVER): Client 4 (192.168.0.101:55435) connected successfully!
+2024-12-02 12:03:46 : Info : CLIENTMANAGER : Client with id [4] connected
+2024-12-02 12:03:54 : Info : SERVER : (SERVER): Client 4 (192.168.0.101:55435) disconnected: Disconnected.
+2024-12-02 12:03:54 : Info : CLIENTMANAGER : Client with id [4] disconnected via Disconnected
+2024-12-02 12:04:54 : Info : SERVER : (SERVER): Client 5 (192.168.0.101:58848) connected successfully!
+2024-12-02 12:04:54 : Info : CLIENTMANAGER : Client with id [5] connected
+2024-12-02 12:05:11 : Info : SERVER : (SERVER): Client 5 (192.168.0.101:58848) disconnected: Timed out.
+2024-12-02 12:05:11 : Info : CLIENTMANAGER : Client with id [5] disconnected via TimedOut
+2024-12-02 12:05:47 : Error : SERVER : Cant access internet connection
+2024-12-02 12:20:31 : Info : SERVER : (SERVER): Client 6 (192.168.0.101:54654) connected successfully!
+2024-12-02 12:20:31 : Info : CLIENTMANAGER : Client with id [6] connected
+2024-12-02 12:20:43 : Info : SERVER : (SERVER): Client 6 (192.168.0.101:54654) disconnected: Disconnected.
+2024-12-02 12:20:43 : Info : CLIENTMANAGER : Client with id [6] disconnected via Disconnected

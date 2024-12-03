@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Server.Core;
 
 namespace WindowsFormsApp1.Database
 {

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Server.Core;
+using Server.Core.Rooms;
 using WindowsFormsApp1.Database;
 
 namespace WindowsFormsApp1
@@ -15,10 +17,10 @@ namespace WindowsFormsApp1
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            Config = LoadConfig();
+            
             Logger.Initialize();
             Logger.IsDebug = true;
-
-            Config = LoadConfig();
             
             await FirebaseService.Initialize();
             await FirebaseDatabase.Initialize();
@@ -29,7 +31,7 @@ namespace WindowsFormsApp1
             await RoomManager.Initiailize();
             await Lobby.Initialize();
             
-            Server.Initialize();
+            Server.Core.Server.Initialize();
             
             Application.Run(new MainForm());
         }
@@ -40,13 +42,17 @@ namespace WindowsFormsApp1
             var config = FilesHelper.Load<Config>(Constants.ConfigPath);
             if (config == null)
             {
-                config = new Config();
+                config = new Config()
+                {
+                    RegisterBalance = 1000,
+                    WriteLogToFile = false
+                };
                 SaveConfig(config);
             }
-
+        
             return config;
         }
-
+        
         static void SaveConfig(Config config)
         {
             FilesHelper.Save(Constants.ConfigPath, config);

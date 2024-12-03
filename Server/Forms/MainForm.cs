@@ -9,15 +9,15 @@ namespace WindowsFormsApp1
         {
             InitializeComponent();
 
-            Server.OnStatusChanged += OnServerStatusChange;
+            Server.Core.Server.OnStatusChanged += OnServerStatusChange;
         }
 
         private void OnServerStatusChange()
         {
-            label_status.Text = Server.IsRunning ? "Running" : "Stopped";
+            label_status.Text = Server.Core.Server.IsRunning ? "Running" : "Stopped";
         }
 
-        private void button_start_Click(object sender, EventArgs e)
+        private async void button_start_Click(object sender, EventArgs e)
         {
             string portText = textBox_port.Text;
             string maxConnectionsText = textBox_maxConnection.Text;
@@ -25,12 +25,12 @@ namespace WindowsFormsApp1
             ushort port = System.Convert.ToUInt16(portText);
             ushort maxConnections = System.Convert.ToUInt16(maxConnectionsText);
             
-            Server.Start(port, maxConnections);
+            await Server.Core.Server.Start(port, maxConnections);
         }
 
         private void button_stop_Click(object sender, EventArgs e)
         {
-            Server.Stop();
+            Server.Core.Server.Stop();
         }
 
         private void toolStripButton_showLog_Click(object sender, EventArgs e)

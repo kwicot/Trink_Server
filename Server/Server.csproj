@@ -126,15 +126,11 @@
         <Compile Include="Firebase\FirebaseService.cs" />
         <Compile Include="Firebase\ServiceAccount.cs" />
         <Compile Include="Firebase\TokenGenerator.cs" />
-        <Compile Include="Forms\LoggingForm.cs">
-          <SubType>Form</SubType>
-        </Compile>
+        <Compile Include="Forms\LoggingForm.cs" />
         <Compile Include="Forms\LoggingForm.Designer.cs">
           <DependentUpon>LoggingForm.cs</DependentUpon>
         </Compile>
-        <Compile Include="Forms\MainForm.cs">
-          <SubType>Form</SubType>
-        </Compile>
+        <Compile Include="Forms\MainForm.cs" />
         <Compile Include="Forms\MainForm.Designer.cs">
           <DependentUpon>MainForm.cs</DependentUpon>
         </Compile>

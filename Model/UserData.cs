@@ -7,7 +7,7 @@ namespace Model
     [Serializable]
     public class UserData
     {
-        public string NickName { get; set; }
+        public UserProfile UserProfile { get; set; }
         public int Balance { get; set; }
         
         public DateTime RegisterDate { get; set; }
@@ -15,7 +15,10 @@ namespace Model
         
         public Message GetMessageData(Message message)
         {
-            message.AddString(NickName);
+            if (UserProfile == null)
+                UserProfile = new UserProfile() { NickName = "Player", Picture = Array.Empty<byte>()};
+            
+            message.AddUserProfile(UserProfile);
             message.AddInt(Balance);
             message.AddDateTime(RegisterDate);
             message.AddDateTime(LastLoginDate);
@@ -25,14 +28,14 @@ namespace Model
 
         public static UserData GetDataFromMessage(Message message)
         {
-            string nickName = message.GetString();
+            UserProfile userProfile = message.GetUserProfile();
             int balance = message.GetInt();
             DateTime registerDate = message.GetDateTime();
             DateTime lastLoginDate = message.GetDateTime();
 
             return new UserData()
             {
-                NickName = nickName,
+                UserProfile = userProfile,
                 Balance = balance,
                 RegisterDate = registerDate,
                 LastLoginDate = lastLoginDate
