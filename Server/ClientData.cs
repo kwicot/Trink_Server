@@ -1,7 +1,5 @@
 ﻿using System;
-using Model;
 using Server.Core.Rooms;
-using WindowsFormsApp1.Room;
 
 namespace Server.Core.Models
 {
@@ -9,7 +7,6 @@ namespace Server.Core.Models
     {
         public ushort ClientID { get; set; }
         public string FirebaseId { get; set; }
-        public int Balance { get; set; }
         public DateTime DisconnectionTime { get; set; }
         public DateTime ConnectionTime { get; set; }
         

@@ -30,7 +30,6 @@ namespace Server.Core
             {
                 ClientID = clientId,
                 FirebaseId = string.Empty,
-                Balance = 0,
                 IsConnectedToServer = true,
                 
                 ConnectionTime = DateTime.Now,
@@ -46,7 +45,6 @@ namespace Server.Core
                 clientData.FirebaseId = string.Empty;
                 clientData.IsConnectedToServer = false;
                 
-                clientData.Balance = 0;
                 clientData.DisconnectionTime = DateTime.Now;
             }
         }

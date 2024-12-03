@@ -52,6 +52,7 @@
         <Compile Include="Room\RoomSettingPreset.cs" />
         <Compile Include="Room\RoomSettings.cs" />
         <Compile Include="Room\RoomType.cs" />
+        <Compile Include="SeatData.cs" />
         <Compile Include="ServerToClientId.cs" />
         <Compile Include="UserData.cs" />
         <Compile Include="UserProfile.cs" />

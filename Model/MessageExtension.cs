@@ -41,6 +41,13 @@ namespace Model
 
         #endregion
         
+        #region SeatData
+
+        public static Message AddSeatData(this Message message, SeatData value) => value.GetMessageData(message);
+        public static SeatData GetSeatData(this Message message) => SeatData.GetDataFromMessage(message);
+
+        #endregion
+        
         #region UserProfile
 
         public static Message AddUserProfile(this Message message, UserProfile value) => value.GetMessageData(message);

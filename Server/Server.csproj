@@ -144,6 +144,7 @@
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="Room\RoomController.cs" />
         <Compile Include="Room\RoomManager.cs" />
+        <Compile Include="Room\SeatController.cs" />
         <Compile Include="Server.cs" />
         <Compile Include="StateMachine.cs" />
         <EmbeddedResource Include="Forms\LoggingForm.resx">

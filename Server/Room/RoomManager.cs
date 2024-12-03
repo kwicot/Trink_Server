@@ -164,7 +164,6 @@ namespace Server.Core.Rooms
             var room = clientData.CurrentRoom;
 
             clientData.CurrentRoom = null;
-            clientData.Balance = 0;
                 
             room.RemoveClient(clientData);
                 
