@@ -17,6 +17,8 @@ namespace Server.Core.Rooms
 
         private bool _removeTimerEnable;
         private DateTime _removeTimerStart;
+
+        public int Balance;
         
         public RoomController(RoomSettings roomSettings)
         {
@@ -55,10 +57,8 @@ namespace Server.Core.Rooms
             var userData = await UsersDatabase.GetUserData(clientData.FirebaseId);
             RoomInfo.Players.Add(userData);
 
-            SendMessage(CreateMessage(ServerToClientId.playerJoinedRoom)
-                    .AddUserData(userData)
-                    , clientData.ClientID);
-            
+            _removeTimerEnable = false;
+
             Logger.LogInfo(Tag, $"{userData.UserProfile.NickName} joined");
             return true;
         }
@@ -69,10 +69,6 @@ namespace Server.Core.Rooms
 
             RoomInfo.Players.Remove(userData);
 
-            SendMessage(CreateMessage(ServerToClientId.playerLeftRoom)
-                    .AddUserData(userData)
-                , clientData.ClientID);
-            
             Logger.LogInfo(Tag, $"{userData.UserProfile.NickName} left");
 
             if (RoomInfo.PlayersCount == 0)

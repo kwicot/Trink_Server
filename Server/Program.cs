@@ -25,7 +25,7 @@ namespace WindowsFormsApp1
             await FirebaseService.Initialize();
             await FirebaseDatabase.Initialize();
             await UsersDatabase.Initialize();
-
+            
             await ClientManager.Initialize();
             await Master.Initialize();
             await RoomManager.Initiailize();

@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System.Linq;
+using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
@@ -21,7 +22,7 @@ namespace WindowsFormsApp1
         {
             listBox_logs.Items.Clear();
 
-            foreach (var logData in Logger.Logs)
+            foreach (var logData in Logger.Logs.ToList())
             {
                 listBox_logs.Items.Add(logData);
             }

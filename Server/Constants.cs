@@ -12,6 +12,6 @@ namespace Server.Core
         public static string FirebaseUrl = "https://trink-3fd78-default-rtdb.firebaseio.com/";
         public static string FirebaseDatabaseUsersPath => "Users/";
 
-        public static string ServiceAccountKeyPath = Path.Combine(RootPath, "Data", "trink-service.json");
+        public static string ServiceAccountKeyPath = Path.Combine(RootPath, "Data", "trink_service.json");
     }
 }
