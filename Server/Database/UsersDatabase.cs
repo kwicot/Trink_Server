@@ -68,6 +68,8 @@ namespace WindowsFormsApp1
         {
             SaveUsers();
             
+            
+            
             //await FirebaseDatabase.WriteDataAsync(Constants.FirebaseDatabaseUsersPath + firebaseId, userData);
         }
 

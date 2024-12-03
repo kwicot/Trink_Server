@@ -55,15 +55,12 @@ namespace Server.Core.Rooms
                     
                     return;
                 }
-                
-                var roomController = new RoomController(roomSettings);
-                _roomsMap.Add(roomController.RoomInfo.RoomSettings.RoomName, roomController);
+
+                CreateNewRoom(roomSettings);
                 
                 SendMessage(CreateMessage(ServerToClientId.createdRoom)
                     , fromClientId);
 
-                OnNewRoomCreated(roomController);
-                
                 Logger.LogInfo(Tag, $"Client [{fromClientId}] [{clientData.FirebaseId}] Created new room");
             }
         }       
@@ -101,7 +98,7 @@ namespace Server.Core.Rooms
                         return;
                     }
                     
-                    else if (!roomController.AddClient(clientData))
+                    else if (!await roomController.AddClient(clientData))
                     {
                         SendMessage(CreateMessage(ServerToClientId.joinRoomFail)
                                 .AddInt((int)ErrorType.BLOCKED)
@@ -146,7 +143,47 @@ namespace Server.Core.Rooms
                 
                 Logger.LogInfo(Tag, $"Client [{fromClientId}] [{clientData.FirebaseId}] left from room [{room.RoomInfo.RoomSettings.RoomName}]");
             }
-        }  
+        }
+        
+        [MessageHandler((ushort)ClientToServerId.sceneLoaded)]
+        public static async void MessageHandler_SceneLoaded(ushort fromClientId, Message message)
+        {
+            if (ClientManager.List.TryGetValue(fromClientId, out ClientData clientData))
+            {
+                if (clientData.CurrentRoom == null) 
+                {
+                    SendMessage(CreateMessage(ServerToClientId.leftRoomFail)
+                            .AddInt((int)ErrorType.NOT_IN_ROOM)
+                        , fromClientId);
+                    return;
+                }
+
+                var room = clientData.CurrentRoom;
+                room.OnPlayerLoadedScene(clientData);
+
+                Logger.LogInfo(Tag, $"Client [{fromClientId}] [{clientData.FirebaseId}] loaded scene on room [{room.RoomInfo.RoomSettings.RoomName}]");
+            }
+        }
+        
+        
+        
+
+        public static RoomController CreateNewRoom(RoomSettings roomSettings)
+        {
+            var roomController = new RoomController(roomSettings);
+            _roomsMap.Add(roomController.RoomInfo.RoomSettings.RoomName, roomController);
+            
+            OnNewRoomCreated(roomController);
+            return roomController;
+        }
+
+        public static void RemoveRoom(RoomController roomController)
+        {
+            roomController.RoomInfo.Removed = true;
+            OnRoomStateChanged(roomController);
+            
+            _roomsMap.Remove(roomController.RoomInfo.RoomSettings.RoomName);
+        }
         
         
         private static void OnNewRoomCreated(RoomController roomController)

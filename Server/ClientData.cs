@@ -1,4 +1,5 @@
 ﻿using System;
+using Model;
 using Server.Core.Rooms;
 using WindowsFormsApp1.Room;
 

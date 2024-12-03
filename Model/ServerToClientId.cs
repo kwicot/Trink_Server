@@ -28,5 +28,8 @@ namespace Kwicot.Server.ClientLibrary.Models.Enums
         
         roomListUpdate = 14,
         updateUserProfileResult = 15,
+        
+        playerJoinedRoom = 16,
+        playerLeftRoom = 17,
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Kwicot.Server.ClientLibrary.Models.Enums;
 using Model.Room;
 using Riptide;
@@ -12,6 +13,31 @@ namespace Model
 
         public static Message AddUserData(this Message message, UserData value) => value.GetMessageData(message);
         public static UserData GetUserData(this Message message) => UserData.GetDataFromMessage(message);
+
+        #endregion
+        
+        #region UsersData
+
+        public static Message AddUsersData(this Message message, UserData[] value)
+        {
+            message.AddInt(value.Length);
+            for (int i = 0; i < value.Length; i++)
+                message.AddUserData(value[i]);
+
+            return message;
+        }
+
+        public static UserData[] GetUsersData(this Message message)
+        {
+            int count = message.GetInt();
+            UserData[] list = new UserData[count];
+            for (int i = 0; i < count; i++)
+            {
+                list[i] = message.GetUserData();
+            }
+
+            return list;
+        }
 
         #endregion
         

@@ -10,7 +10,7 @@ namespace Kwicot.Server.ClientLibrary.Models.Enums
     {
         public RoomSettings RoomSettings { get; set; }
         
-        public List<string> Players { get; set; }
+        public List<UserData> Players { get; set; }
 
         public bool Removed { get; set; }
         
@@ -27,7 +27,7 @@ namespace Kwicot.Server.ClientLibrary.Models.Enums
         public Message GetMessageData(Message message)
         {
             message.AddRoomSettings(RoomSettings);
-            message.AddStrings(Players.ToArray());
+            message.AddUsersData(Players.ToArray());
             message.AddBool(Removed);
 
             return message;
@@ -36,7 +36,7 @@ namespace Kwicot.Server.ClientLibrary.Models.Enums
         public static RoomInfo GetDataFromMessage(Message message)
         {
             RoomSettings roomSettings = message.GetRoomSettings();
-            string[] players = message.GetStrings();
+            UserData[] players = message.GetUsersData();
             bool removed = message.GetBool();
 
             return new RoomInfo()

@@ -19,10 +19,12 @@ namespace Server.Core
         
         public static bool IsRunning { get; private set; }
         public static Action OnStatusChanged;
+        
+        public static DateTime ServerTime => DateTime.Now;
 
         public static void Initialize()
         {
-            _timer = new Timer(TimerTick, DateTime.Now, 0, 10);
+            _timer = new Timer(TimerTick, DateTime.Now, 0, 50);
             
             _riptideServer = new Riptide.Server();
             

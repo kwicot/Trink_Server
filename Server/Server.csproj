@@ -145,6 +145,7 @@
         <Compile Include="Room\RoomController.cs" />
         <Compile Include="Room\RoomManager.cs" />
         <Compile Include="Server.cs" />
+        <Compile Include="StateMachine.cs" />
         <EmbeddedResource Include="Forms\LoggingForm.resx">
           <DependentUpon>LoggingForm.cs</DependentUpon>
         </EmbeddedResource>

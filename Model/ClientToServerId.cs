@@ -16,6 +16,7 @@ namespace Kwicot.Server.ClientLibrary.Models.Enums
         leftRoom = 6,
         
         updateUserProfile = 7,
+        sceneLoaded = 8,
         
     }
 }
