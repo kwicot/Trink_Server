@@ -43,6 +43,9 @@ namespace Server.Core
                         OnConnected?.Invoke(clientData);
 
                         var userData = await UsersDatabase.GetUserData(firebaseId);
+                        userData.FirebaseId = firebaseId;
+                        userData.ClientId = fromClientId;
+                        
                         SendMessage(CreateMessage(ServerToClientId.connectedToMaster)
                             .AddUserData(userData)
                             .AddRoomSettingsPresets(RoomManager.RoomSettingPresets)

@@ -17,6 +17,8 @@ namespace Server.Core.Rooms
 
         private bool _removeTimerEnable;
         private DateTime _removeTimerStart;
+        
+        public SeatController[] Seats { get; }
 
         public int Balance;
         
@@ -26,6 +28,18 @@ namespace Server.Core.Rooms
             {
                 RoomSettings = roomSettings,
                 Players = new List<UserData>()
+            };
+
+            Seats = new[]
+            {
+                new SeatController() { Index = 0, RoomController = this},
+                new SeatController() { Index = 1, RoomController = this },
+                new SeatController() { Index = 2, RoomController = this },
+                new SeatController() { Index = 3, RoomController = this },
+                new SeatController() { Index = 4, RoomController = this },
+                new SeatController() { Index = 5, RoomController = this },
+                new SeatController() { Index = 6, RoomController = this },
+                new SeatController() { Index = 7, RoomController = this }
             };
 
             Logger.LogInfo(Tag, $"Room created");
@@ -58,6 +72,7 @@ namespace Server.Core.Rooms
             RoomInfo.Players.Add(userData);
 
             _removeTimerEnable = false;
+            clientData.CurrentRoom = this;
 
             Logger.LogInfo(Tag, $"{userData.UserProfile.NickName} joined");
             return true;
@@ -68,6 +83,7 @@ namespace Server.Core.Rooms
             var userData = await UsersDatabase.GetUserData(clientData.FirebaseId);
 
             RoomInfo.Players.Remove(userData);
+            clientData.CurrentRoom = null;
 
             Logger.LogInfo(Tag, $"{userData.UserProfile.NickName} left");
 
@@ -86,5 +102,13 @@ namespace Server.Core.Rooms
         
         static Message CreateMessage(ServerToClientId id) => Message.Create(MessageSendMode.Reliable, id);
         static void SendMessage(Message message, ushort clientId) => Server.SendMessage(message, clientId);
+
+        public void SendToAll(Message message)
+        {
+            foreach (var infoPlayer in RoomInfo.Players)
+            {
+                SendMessage(message, infoPlayer.ClientId);
+            }
+        }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using Riptide;
-using WindowsFormsApp1.Room;
 
 namespace Model
 {
@@ -13,7 +12,8 @@ namespace Model
         public DateTime RegisterDate { get; set; }
         public DateTime LastLoginDate { get; set; }
 
-        public ushort ClientId { get; set; }
+        public string FirebaseId { get; set; } = string.Empty;
+        public ushort ClientId { get; set; } = ushort.MinValue;
         
         public Message GetMessageData(Message message)
         {
@@ -24,7 +24,7 @@ namespace Model
             message.AddInt(Balance);
             message.AddDateTime(RegisterDate);
             message.AddDateTime(LastLoginDate);
-            message.AddUShort(ClientId);
+            message.AddString(FirebaseId);
             
             return message;
         }
@@ -35,7 +35,7 @@ namespace Model
             int balance = message.GetInt();
             DateTime registerDate = message.GetDateTime();
             DateTime lastLoginDate = message.GetDateTime();
-            ushort clientId = message.GetUShort();
+            string firebaseId = message.GetString();
 
             return new UserData()
             {
@@ -43,7 +43,7 @@ namespace Model
                 Balance = balance,
                 RegisterDate = registerDate,
                 LastLoginDate = lastLoginDate,
-                ClientId = clientId
+                FirebaseId = firebaseId
             };
         }
     }

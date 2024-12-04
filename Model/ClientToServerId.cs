@@ -18,5 +18,8 @@ namespace Kwicot.Server.ClientLibrary.Models.Enums
         updateUserProfile = 7,
         sceneLoaded = 8,
         
+        requestSeat = 9,
+        getUserData = 10,
+        
     }
 }

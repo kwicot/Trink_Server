@@ -33,6 +33,9 @@ namespace Kwicot.Server.ClientLibrary.Models.Enums
         playerLeftRoom = 17,
         
         updateSeatData = 18,
+        seatRequestResult = 19,
+        
+        getUserDataResult = 20,
         
     }
 }

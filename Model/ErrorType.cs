@@ -15,6 +15,7 @@
         NOT_IN_ROOM = 10,
         DOES_NOT_EXIST = 11,
         NO_FREE_SPACE = 12,
-        BLOCKED = 13
+        BLOCKED = 13,
+        NOT_ENOUGH_MONEY = 14,
     }
 }

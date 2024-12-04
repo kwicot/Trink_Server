@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Kwicot.Server.ClientLibrary.Models.Enums;
 using Model;
+using Riptide;
 using Server.Core;
 using WindowsFormsApp1.Database;
 
@@ -41,7 +43,7 @@ namespace WindowsFormsApp1
         
             if (data == null)
             {
-                data = CreateNewUserData();
+                data = CreateNewUserData(firebaseId);
                 
                 await FirebaseDatabase.WriteDataAsync(Constants.FirebaseDatabaseUsersPath + firebaseId, data);
             }
@@ -51,7 +53,7 @@ namespace WindowsFormsApp1
             return _usersMap[firebaseId];
         }
 
-        static UserData CreateNewUserData()
+        static UserData CreateNewUserData(string firebaseId)
         {
             return new UserData()
             {
@@ -60,7 +62,8 @@ namespace WindowsFormsApp1
                 {
                     NickName = "Player",
                     Picture = Array.Empty<byte>()
-                }
+                },
+                FirebaseId = firebaseId
             };
         }
 
@@ -72,6 +75,36 @@ namespace WindowsFormsApp1
             
             //await FirebaseDatabase.WriteDataAsync(Constants.FirebaseDatabaseUsersPath + firebaseId, userData);
         }
+
+
+        [MessageHandler((ushort)ClientToServerId.getUserData)]
+        public static async void MessageHandler_GetUserData(ushort fromClientId, Message message)
+        {
+            string firebaseId = message.GetString();
+            string requestId = message.GetString();
+
+            var userData = await GetUserData(firebaseId);
+
+            if (userData != null)
+            {
+                SendMessage(CreateMessage(ServerToClientId.getUserDataResult)
+                    .AddString(requestId)
+                    .AddBool(true)
+                    .AddUserData(userData)
+                    , fromClientId);
+            }
+            else
+            {
+                SendMessage(CreateMessage(ServerToClientId.getUserDataResult)
+                        .AddString(requestId)
+                        .AddBool(false)
+                        .AddInt((int)ErrorType.DOES_NOT_EXIST)
+                    , fromClientId);
+            }
+        }
+        
+        static Message CreateMessage(ServerToClientId id) => Message.Create(MessageSendMode.Reliable, id);
+        static void SendMessage(Message message, ushort clientId) => Server.Core.Server.SendMessage(message, clientId);
 
     }
 }
