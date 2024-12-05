@@ -135,6 +135,7 @@
           <DependentUpon>MainForm.cs</DependentUpon>
         </Compile>
         <Compile Include="ILoggerHandler.cs" />
+        <Compile Include="ListExtension.cs" />
         <Compile Include="Lobby.cs" />
         <Compile Include="Logging\LogData.cs" />
         <Compile Include="Logging\Logger.cs" />
@@ -148,6 +149,18 @@
         <Compile Include="SeatMessageHandler.cs" />
         <Compile Include="Server.cs" />
         <Compile Include="StateMachine.cs" />
+        <Compile Include="StateMachine\BetsData.cs" />
+        <Compile Include="StateMachine\CalcState.cs" />
+        <Compile Include="StateMachine\CardsHolder.cs" />
+        <Compile Include="StateMachine\DealState.cs" />
+        <Compile Include="StateMachine\EndState.cs" />
+        <Compile Include="StateMachine\GameState.cs" />
+        <Compile Include="StateMachine\StateMachine.cs" />
+        <Compile Include="StateMachine\SvaraState.cs" />
+        <Compile Include="StateMachine\TurnState.cs" />
+        <Compile Include="StateMachine\TurnType.cs" />
+        <Compile Include="StateMachine\WaitingState.cs" />
+        <Compile Include="StateMachine\WithdrawState.cs" />
         <EmbeddedResource Include="Forms\LoggingForm.resx">
           <DependentUpon>LoggingForm.cs</DependentUpon>
         </EmbeddedResource>

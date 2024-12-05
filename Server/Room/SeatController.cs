@@ -34,15 +34,14 @@ namespace Server.Core.Rooms
             ClientData = clientData;
             UserData = userData;
             
-
+            SendData();
+            
             if (isRequest)
             {
                 SendMessage(CreateMessage(ServerToClientId.seatRequestResult)
                         .AddBool(true)
                     , clientData.ClientID);
             }
-            
-            SendData();
         }
 
         public async void RemovePlayer()
