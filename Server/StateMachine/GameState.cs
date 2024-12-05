@@ -1,11 +1,19 @@
 ﻿
+using System;
+using Model;
 using Riptide.Utils;
+using WindowsFormsApp1;
+using WindowsFormsApp1.Room;
+using LogType = Riptide.Utils.LogType;
 
 namespace Trink_RiptideServer.Library.StateMachine
 {
-    public abstract class GameState
+    public abstract class GameState : IDisposable
     {
         protected StateMachine _stateMachine;
+        protected StateMachineConfig Config => Program.Config.StateMachineConfig;
+        protected RoomSettings RoomSettings => _stateMachine.RoomController.RoomInfo.RoomSettings;
+        protected string Tag;
 
         public GameState(StateMachine stateMachine)
         {
@@ -33,11 +41,6 @@ namespace Trink_RiptideServer.Library.StateMachine
         protected abstract void OnTick();
         protected abstract void OnExit();
 
-        protected virtual void SendEnterMessage(string text)
-        {
-            _stateMachine.RoomController.OnEnterState(text);
-        }
-
         protected virtual void Log(string str)
         {
             RiptideLogger.Log(LogType.Debug, str);
@@ -57,5 +60,7 @@ namespace Trink_RiptideServer.Library.StateMachine
         {
             RiptideLogger.Log(LogType.Error, str);
         }
+
+        public abstract void Dispose();
     }
 }

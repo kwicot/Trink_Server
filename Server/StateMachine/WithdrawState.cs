@@ -1,10 +1,17 @@
 ﻿
+using System.Collections.Generic;
+using System.Web.Configuration;
+using WindowsFormsApp1;
+
 namespace Trink_RiptideServer.Library.StateMachine
 {
     public class WithdrawState : GameState
     {
         protected override void OnEnter()
         {
+            Tag = $"{_stateMachine.RoomController.Tag}_State_Withdraw";
+            Logger.LogInfo(Tag, "Enter");
+            
             _stateMachine.BetsData = new BetsData()
             {
                 Bets = new Dictionary<int, int>()
@@ -14,21 +21,22 @@ namespace Trink_RiptideServer.Library.StateMachine
             var seats = _stateMachine.RoomController.Seats;
             for (int i = 0; i < seats.Length; i++)
             {
-                if (seats[i].IsReady && seats[i].Balance >= _stateMachine.MinAllowedBalance)
+                if (seats[i].IsReady && seats[i].SeatData.Balance >= RoomSettings.MinBalance)
                 {
-                    seats[i].Withdraw(_stateMachine.EnterPrice);
+                    seats[i].Withdraw(RoomSettings.StartBet);
                     readySeats.Add(i);
-                    _stateMachine.BetsData.Bets[i] = _stateMachine.EnterPrice;
+                    _stateMachine.BetsData.Bets[i] = RoomSettings.StartBet;
+                }
+                else
+                {
+                    //TODO offer to top up balance
                 }
             }
 
             _stateMachine.PlaySeats = readySeats;
-            _stateMachine.MinBet = _stateMachine.EnterPrice * 2;
 
-
-            _stateMachine.SetState<DealState>();
             
-            SendEnterMessage("Збір вступних");
+            _stateMachine.SetState<DealState>();
         }
 
         protected override void OnTick()
@@ -40,6 +48,10 @@ namespace Trink_RiptideServer.Library.StateMachine
         {
         }
 
+        public override void Dispose()
+        {
+            
+        }
 
 
         public WithdrawState(StateMachine stateMachine) : base(stateMachine)

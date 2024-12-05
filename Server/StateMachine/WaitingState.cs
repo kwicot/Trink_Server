@@ -1,5 +1,10 @@
 ﻿
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Riptide.Utils;
+using WindowsFormsApp1;
+using LogType = Riptide.Utils.LogType;
 
 namespace Trink_RiptideServer.Library.StateMachine
 {
@@ -9,6 +14,9 @@ namespace Trink_RiptideServer.Library.StateMachine
         private CancellationTokenSource _cancellationTokenSource;
         protected override void OnEnter()
         {
+            Tag = $"{_stateMachine.RoomController.Tag}_State_Waiting";
+            Logger.LogInfo(Tag, "Enter");
+            
             _cancellationTokenSource = new CancellationTokenSource();
             _task = Task.Run(() => 
             {
@@ -18,10 +26,9 @@ namespace Trink_RiptideServer.Library.StateMachine
                 }
                 catch (Exception ex)
                 {
-                    RiptideLogger.Log(LogType.Error, $"Exception in Wait: {ex}");
+                    Logger.LogError(Tag, $"Exception in Wait: {ex}");
                 }
             }, _cancellationTokenSource.Token);
-            
             
         }
 
@@ -35,19 +42,23 @@ namespace Trink_RiptideServer.Library.StateMachine
             _cancellationTokenSource.Cancel();
         }
 
-        
+        public override void Dispose()
+        {
+            _cancellationTokenSource?.Cancel();
+            _task?.Dispose();
+            _cancellationTokenSource?.Dispose();
+        }
+
 
         async Task Wait()
         {
             while (!_stateMachine.IsReady)
             {
                 await Task.Delay(1000);
-                SendEnterMessage("Очікування");
+                Logger.LogInfo(Tag,"Not ready to start. Waiting 1s");
             }
-            
-            SendEnterMessage("Початок");
 
-            await Task.Delay((int)(_stateMachine.StartDelay * 1000));
+            await Task.Delay((int)(Config.StartDelay));
             
             _stateMachine.SetState<WithdrawState>();
         }

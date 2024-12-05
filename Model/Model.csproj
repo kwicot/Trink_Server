@@ -54,6 +54,7 @@
         <Compile Include="Room\RoomType.cs" />
         <Compile Include="SeatData.cs" />
         <Compile Include="ServerToClientId.cs" />
+        <Compile Include="StateMachineConfig.cs" />
         <Compile Include="UserData.cs" />
         <Compile Include="UserProfile.cs" />
     </ItemGroup>

@@ -1,4 +1,5 @@
 ﻿using System;
+using Model;
 
 namespace Server.Core
 {
@@ -7,5 +8,6 @@ namespace Server.Core
     {
         public int RegisterBalance = 1000;
         public bool WriteLogToFile = false;
+        public StateMachineConfig StateMachineConfig;
     }
 }

@@ -1,9 +1,8 @@
-﻿using Kwicot;
+﻿using System;
+using System.Collections.Generic;
 using Kwicot.Server.ClientLibrary.Models.Enums;
-using Kwicot.Server.Models;
 using Riptide;
-using Riptide.Utils;
-using Server;
+using Server.Core.Rooms;
 using Trink_RiptideServer.Library.Cards;
 
 namespace Trink_RiptideServer.Library.StateMachine
@@ -25,32 +24,24 @@ namespace Trink_RiptideServer.Library.StateMachine
         private DealState dealState;
         private TurnState turnState;
         private CalcState calcState;
-        private SvaraState svaraState;
         private EndState endState;
 
         private Dictionary<Type, GameState> _statesMap;
 
-
-        public float RoundDelay { get; private set; } = 5;
-        public float StartDelay { get; private set; } = 3;
-        public float DealDelay { get; private set; } = 0.3f;
-        public float TurnDelay { get; private set; } = 2;
-        public float TurnWait { get; private set; } = 60;
-        public float EngGameWait { get; set; } = 10;
-        public float SvaraStartDelay { get; set; } = 5;
-        public float SvaraEnterWait { get; set; } = 15;
-        public bool IsHideTurn { get; set; }
+        public int LapTurns = 0;
+        private int _tablePercentSum;
         
-        public bool WaitWithdraw { get; private set; }
-        public int EnterPrice { get; private set; }
-        public int SvaraEnterPrice { get; set; }
-        public int MinBet { get; set; }
-        public int HideBet { get; set; }
+        
+        public bool IsHideTurn { get; set; }
         public int DealerIndex { get; set; } = -1;
-        public int MinAllowedBalance => EnterPrice * 20;
-        public int MaxAllowedBalance => EnterPrice * 200;
         public List<int> PlaySeats { get; set; } = new();
-        public List<string> Actions { get; private set; } = new List<string>();
+        public BetsData BetsData { get; set; } = new BetsData();
+        public Dictionary<int, TurnType> LapBets { get; set; } = new();
+        public RoomController RoomController { get; }
+        public bool PlayerCheckedCards { get; set; }
+        public CardsHolder CardsHolder => cardsHolder;
+
+        public int Balance => BetsData.TotalBank - _tablePercentSum;
 
         public bool IsReady
         {
@@ -90,21 +81,8 @@ namespace Trink_RiptideServer.Library.StateMachine
             }
         }
 
-        public BetsData BetsData { get; set; } = new BetsData();
 
-        public Dictionary<int, TurnType> LapBets { get; set; } = new();
-        public int LapTurns = 0;
         
-        private int _tablePercentSum;
-
-
-        public int Balance => BetsData.TotalBank - _tablePercentSum;
-
-        public RoomController RoomController { get; }
-
-        //public bool IsReady => tableController.IsReady;
-        public bool PlayerCheckedCards { get; set; }
-        public CardsHolder CardsHolder => cardsHolder;
         public bool IsWaitingState => _currentState == waitingState | _currentState == endState;
 
         public bool CanAddMoney
@@ -113,10 +91,9 @@ namespace Trink_RiptideServer.Library.StateMachine
             {
                 bool isWaitingState = _currentState == waitingState;
                 bool isEndState = _currentState == endState;
-                bool ssSvaraState = _currentState == svaraState && svaraState.WaitEnter; 
                 bool isPassTurn = false;
 
-                bool result = isWaitingState || isEndState || ssSvaraState || isPassTurn;
+                bool result = isWaitingState || isEndState || isPassTurn;
 
                 return result;
             }
@@ -153,17 +130,12 @@ namespace Trink_RiptideServer.Library.StateMachine
         {
             cardsHolder = new CardsHolder();
             
-            EnterPrice = RoomController.RoomInfo.RoomSettings.StartBet;
-            MinBet = EnterPrice;
-
             SetState(waitingState);
         }
 
 
         public void NewGame()
         {
-            MinBet = EnterPrice;
-            
             LapBets.Clear();
             PlaySeats.Clear();
             DealerIndex = -1;
@@ -179,34 +151,6 @@ namespace Trink_RiptideServer.Library.StateMachine
         public void TakePercent(int value)
         {
             _tablePercentSum = value;
-        }
-
-        public void OnAction(string action)
-        {
-            Actions.Add(action);
-            if(Actions.Count > 50)
-                Actions.RemoveAt(0);
-        }
-
-        public void OnSeatEnterSvara(SeatController seatController, bool enter)
-        {
-            int seatIndex = seatController.Index;
-            if (_currentState == svaraState)
-            {
-                if (enter)
-                {
-                    PlaySeats.Add(seatIndex);
-                    svaraState.OnPlayerEnter();
-                    
-                    RoomController.Seats[seatIndex].Withdraw(SvaraEnterPrice);
-                    BetsData.Bets[seatIndex] += SvaraEnterPrice;
-                }
-                else
-                {
-                    svaraState.OnPlayerPass();
-                }
-                
-            }
         }
 
         public void OnSeatCheckCards()
@@ -240,15 +184,6 @@ namespace Trink_RiptideServer.Library.StateMachine
             }
         }
 
-        public void OnStartSvaraWaitEnter(int value)
-        {
-            foreach (var seatIndex in PlaySeats)
-            {
-                var seat = RoomController.Seats[seatIndex];
-                seat.OnSvara();
-            }
-        }
-
         public void OnPlayerLeft(int seatIndex)
         {
             if (_currentState == turnState)
@@ -264,6 +199,17 @@ namespace Trink_RiptideServer.Library.StateMachine
             }
         }
 
+        public void SendData()
+        {
+            CreateMessage(ServerToClientId.updateStateMachineData)
+                ;
+            foreach (var infoPlayer in RoomController.RoomInfo.Players)
+            {
+                
+            }   
+        }
+        
+
 
 
         void InitializeStates()
@@ -274,7 +220,6 @@ namespace Trink_RiptideServer.Library.StateMachine
             turnState = new TurnState(this);
             calcState = new CalcState(this);
             endState = new EndState(this);
-            svaraState = new SvaraState(this);
 
             _statesMap = new Dictionary<Type, GameState>();
             _statesMap[typeof(WaitingState)] = waitingState;
@@ -283,7 +228,6 @@ namespace Trink_RiptideServer.Library.StateMachine
             _statesMap[typeof(TurnState)] = turnState;
             _statesMap[typeof(CalcState)] = calcState;
             _statesMap[typeof(EndState)] = endState;
-            _statesMap[typeof(SvaraState)] = svaraState;
         }
 
         void SetState(GameState state)
@@ -306,7 +250,7 @@ namespace Trink_RiptideServer.Library.StateMachine
         }
         
         Message CreateMessage(ServerToClientId id) => Message.Create(MessageSendMode.Reliable, id);
-        void SendMessage(Message msg, params ushort[] clientIds) => Kwicot.Server.Server.SendMessage(msg, clientIds);
+        void SendMessage(Message msg, ushort clientId) => Server.Core.Server.SendMessage(msg, clientId);
 
     }
 }

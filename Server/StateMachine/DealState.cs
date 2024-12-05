@@ -1,5 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Riptide.Utils;
+using WindowsFormsApp1;
+using LogType = Riptide.Utils.LogType;
 
 namespace Trink_RiptideServer.Library.StateMachine
 {
@@ -11,6 +17,9 @@ namespace Trink_RiptideServer.Library.StateMachine
         
         protected override void OnEnter()
         {
+            Tag = $"{_stateMachine.RoomController.Tag}_State_Deal";
+            Logger.LogInfo(Tag, "Enter");
+            
             _cancellationTokenSource = new CancellationTokenSource();
             _task = Task.Run(() => 
             {
@@ -20,11 +29,10 @@ namespace Trink_RiptideServer.Library.StateMachine
                 }
                 catch (Exception ex)
                 {
-                    RiptideLogger.Log(LogType.Error, $"Exception in Wait: {ex}");
+                    Logger.LogError(Tag, $"Exception in Wait: {ex}");
                 }
             }, _cancellationTokenSource.Token);
             
-            SendEnterMessage("Роздача");
         }
 
         protected override void OnTick()
@@ -36,15 +44,17 @@ namespace Trink_RiptideServer.Library.StateMachine
         {
             _cancellationTokenSource.Cancel();
         }
-        
 
-        
+        public override void Dispose()
+        {
+            _cancellationTokenSource?.Cancel();
+            _task?.Dispose();
+            _cancellationTokenSource?.Dispose();
+        }
+
 
         private async Task Deal()
         {
-            //_stateMachine.InfoText.text = "Роздача карт";
-            await Task.Delay(1000);
-            
             _stateMachine.DealerIndex = GetDealer();
             _stateMachine.PlaySeats = GetDealList();
             
@@ -56,13 +66,13 @@ namespace Trink_RiptideServer.Library.StateMachine
                     var card = _stateMachine.CardsHolder.GetCard();
                     var seat = _stateMachine.RoomController.Seats[_stateMachine.PlaySeats[j]];
                     seat.AddCard(i, card);
-                    await Task.Delay((int)(_stateMachine.DealDelay * 1000));
+                    await Task.Delay((int)(Config.DealInterval));
 
                 }
-                await Task.Delay((int)(_stateMachine.DealDelay * 1000));
+                await Task.Delay((int)(Config.DealInterval));
             }
 
-            await Task.Delay((int)(_stateMachine.TurnDelay * 1000));
+            await Task.Delay((int)(Config.DealInterval));
             _stateMachine.SetState<TurnState>();
         }
 

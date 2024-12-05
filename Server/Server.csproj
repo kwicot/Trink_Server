@@ -12,6 +12,7 @@
         <FileAlignment>512</FileAlignment>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
         <Deterministic>true</Deterministic>
+        <LangVersion>9</LangVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -156,7 +157,6 @@
         <Compile Include="StateMachine\EndState.cs" />
         <Compile Include="StateMachine\GameState.cs" />
         <Compile Include="StateMachine\StateMachine.cs" />
-        <Compile Include="StateMachine\SvaraState.cs" />
         <Compile Include="StateMachine\TurnState.cs" />
         <Compile Include="StateMachine\TurnType.cs" />
         <Compile Include="StateMachine\WaitingState.cs" />

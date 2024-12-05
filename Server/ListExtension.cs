@@ -1,7 +1,5 @@
 ﻿using System.Collections;
 
-namespace Server;
-
 public static class ListExtension
 {
     public static void ShiftLeft(this IList list, int count)
