@@ -42,8 +42,15 @@ namespace Kwicot.Server.ClientLibrary.Models.Enums
         offerToTopUpBalance = 23,
         topUpBalanceResult = 24,
         withdraw = 25,
+
+        addCard = 26,
+        turn = 27,
+        endTurn = 28,
+        showCards = 29,
+        onReturn = 30,
+        onWin = 31,
+        onEndGame = 32,
         
-        showCards = 26,
         
     }
 }

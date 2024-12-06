@@ -44,6 +44,9 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="BetData.cs" />
+        <Compile Include="CardModel.cs" />
+        <Compile Include="CardNumber.cs" />
+        <Compile Include="CardSuit.cs" />
         <Compile Include="ClientToServerId.cs" />
         <Compile Include="ErrorType.cs" />
         <Compile Include="MessageExtension.cs" />

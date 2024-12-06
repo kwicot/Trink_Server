@@ -1,5 +1,7 @@
-﻿
-using Riptide.Utils;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using WindowsFormsApp1;
 
 namespace Trink_RiptideServer.Library.StateMachine
 {
@@ -9,6 +11,9 @@ namespace Trink_RiptideServer.Library.StateMachine
         private CancellationTokenSource _cancellationTokenSource;
         protected override void OnEnter()
         {
+            Tag = $"{_stateMachine.RoomController.Tag}_State_EndGame";
+            Logger.LogInfo(Tag, "Enter");
+            
             _cancellationTokenSource = new CancellationTokenSource();
             _task = Task.Run(() => 
             {
@@ -18,11 +23,9 @@ namespace Trink_RiptideServer.Library.StateMachine
                 }
                 catch (Exception ex)
                 {
-                    RiptideLogger.Log(LogType.Error, $"Exception in Wait: {ex}");
+                    Logger.LogError(Tag,$"Exception: {ex}" );
                 }
             }, _cancellationTokenSource.Token);
-            
-            SendEnterMessage("Закінчення партії");
         }
 
         protected override void OnTick()
@@ -34,14 +37,21 @@ namespace Trink_RiptideServer.Library.StateMachine
             _cancellationTokenSource.Cancel();
         }
 
+        public override void Dispose()
+        {
+            _cancellationTokenSource?.Cancel();
+            _task?.Dispose();
+            _cancellationTokenSource?.Dispose();
+        }
+
         async Task Wait()
         {
             foreach (var seat in _stateMachine.RoomController.Seats)
             {
-                seat.PrepareToNewGame();
+                seat.EndGame();
             }
 
-            await Task.Delay((int)(_stateMachine.EngGameWait * 1000));
+            await Task.Delay((int)(Program.Config.StateMachineConfig.EndDelay * 1000));
 
             _stateMachine.NewGame();
         }

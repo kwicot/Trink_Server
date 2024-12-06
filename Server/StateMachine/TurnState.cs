@@ -77,14 +77,14 @@ namespace Trink_RiptideServer.Library.StateMachine
             {
                 await Task.Delay((int)(Config.TurnDelay));
                
-                if (_stateMachine.IsHideTurn && seat.SeatData.Balance < _stateMachine.Bet)
+                if (_stateMachine.IsHideTurn && seat.SeatData.Balance < _stateMachine.Bet * 2)
                 {
                     _stateMachine.IsHideTurn = false;
                     _stateMachine.OnSeatCheckCards();
                 }
                 
                 bool lastTurnOnLap = _currentTurn >= _stateMachine.InGameSeats - 1;
-                seat.Turn(_stateMachine.IsHideTurn, Config.TurnWait, lastTurnOnLap, _stateMachine.MinBet, _stateMachine.HideBet);
+                seat.Turn(_stateMachine.IsHideTurn, Config.TurnWait, lastTurnOnLap, _stateMachine.Bet);
 
                 float time = Config.TurnWait;
                 while (time >= 0)
@@ -112,16 +112,16 @@ namespace Trink_RiptideServer.Library.StateMachine
             if (value == -1)
                 OnPassTurn(seatIndex);
             
-            else if (_stateMachine.IsHideTurn && value == _stateMachine.HideBet)
+            else if (_stateMachine.IsHideTurn && value == _stateMachine.Bet * 2)
                 OnHideBet(seatIndex);
             
             else if (value == _stateMachine.RoomController.Seats[seatIndex].SeatData.Balance)
                 OnAllIn(seatIndex);
             
-            else if (value < _stateMachine.MinBet * 2)
+            else if (value < _stateMachine.Bet)
                 OnMinBet(seatIndex, value);
             
-            else if (value >= _stateMachine.MinBet * 2)
+            else if (value >= _stateMachine.Bet)
                 OnIncrease(seatIndex, value);
         }
         int CanBet(int value, out int maxValue)
@@ -191,7 +191,7 @@ namespace Trink_RiptideServer.Library.StateMachine
             bool onlyOne = _stateMachine.InGameSeats == 1;
             bool lastTurnOnLap = _currentTurn >= _stateMachine.PlaySeats.Count;
             int haveMoney = 0;
-            int canBet = CanBet(_stateMachine.MinBet, out int maxBet);
+            int canBet = CanBet(_stateMachine.Bet, out int maxBet);
 
             for (int i = 0; i < _stateMachine.PlaySeats.Count; i++)
             {
@@ -235,7 +235,7 @@ namespace Trink_RiptideServer.Library.StateMachine
             
             _cancellationTokenSource.Cancel();
             
-            if (CanBet(_stateMachine.MinBet, out var max) > 0)
+            if (CanBet(_stateMachine.Bet, out var max) > 0)
             {
                 int increaseCount = 0;
                 foreach (var lapBet in _stateMachine.LapBets)
@@ -259,7 +259,6 @@ namespace Trink_RiptideServer.Library.StateMachine
         void OnPassTurn(int seatIndex)
         {
             LogInfo($"On pass turn {seatIndex}");
-            _stateMachine.Actions.Add($"Pass: {_stateMachine.RoomController.Seats[seatIndex]} ({seatIndex})");
             //_stateMachine.PlaySeats.Remove(seatIndex);
             _stateMachine.LapBets[seatIndex] = TurnType.Pass;
             //_stateMachine.BetsData.Bets[seatIndex] = 0;
@@ -271,8 +270,8 @@ namespace Trink_RiptideServer.Library.StateMachine
         
         private void OnHideBet(int seatIndex)
         {
-            _stateMachine.BetsData.Bets[seatIndex] += _stateMachine.HideBet;
-            LogInfo($"On hide bet seat: {seatIndex} bet: {_stateMachine.HideBet}. Total bets {_stateMachine.BetsData.Bets[seatIndex]} ");
+            _stateMachine.BetsData.Bets[seatIndex] += _stateMachine.Bet * 2;
+            LogInfo($"On hide bet seat: {seatIndex} bet: {_stateMachine.Bet * 2}. Total bets {_stateMachine.BetsData.Bets[seatIndex]} ");
             
             _stateMachine.LapBets[seatIndex] = TurnType.Hide;
             
@@ -280,11 +279,9 @@ namespace Trink_RiptideServer.Library.StateMachine
              ShiftTurnQueue(playIndex);
              
 
-            _stateMachine.RoomController.Seats[seatIndex].Withdraw(_stateMachine.HideBet);
+            _stateMachine.RoomController.Seats[seatIndex].Withdraw(_stateMachine.Bet * 2);
             
-            _stateMachine.MinBet = _stateMachine.HideBet;
-            _stateMachine.HideBet *= 2;
-            
+            _stateMachine.Bet = _stateMachine.Bet * 2;
 
 
             if (_stateMachine.IsHideTurn && _stateMachine.PlayerCheckedCards)
@@ -302,8 +299,8 @@ namespace Trink_RiptideServer.Library.StateMachine
 
             _stateMachine.LapBets[seatIndex] = TurnType.AllIn;
 
-            if (playerData.SeatData.Balance > _stateMachine.MinBet)
-                _stateMachine.MinBet = playerData.SeatData.Balance;
+            if (playerData.SeatData.Balance > _stateMachine.Bet)
+                _stateMachine.Bet = playerData.SeatData.Balance;
             
             _stateMachine.RoomController.Seats[seatIndex].Withdraw(playerData.SeatData.Balance);
             
@@ -353,14 +350,14 @@ namespace Trink_RiptideServer.Library.StateMachine
                 _stateMachine.LapBets[seatIndex] = TurnType.Increase;
 
                 _stateMachine.BetsData.Bets[seatIndex] += bet;
-                _stateMachine.MinBet = bet;
+                _stateMachine.Bet = bet;
 
                 Next();
             }
             else
             {
                 LogInfo("CanBet < 1");
-                if (max >= _stateMachine.MinBet * 2) //Если никто не сможет ответить на ставку но ответная ставка может быть Х2
+                if (max >= _stateMachine.Bet * 2) //Если никто не сможет ответить на ставку но ответная ставка может быть Х2
                 {
                     LogInfo("Max >= minBet * 2");
                     
@@ -371,7 +368,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                     _stateMachine.LapBets[seatIndex] = TurnType.Increase;
 
                     _stateMachine.BetsData.Bets[seatIndex] += max;
-                    _stateMachine.MinBet = max;
+                    _stateMachine.Bet = max;
 
                     Next();
                 }
@@ -383,7 +380,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                     _stateMachine.LapBets[seatIndex] = TurnType.Normal;
 
                     _stateMachine.BetsData.Bets[seatIndex] += max;
-                    _stateMachine.MinBet = max;
+                    _stateMachine.Bet = max;
 
                     Next();
                 }

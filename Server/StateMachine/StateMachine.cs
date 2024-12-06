@@ -144,20 +144,19 @@ namespace Trink_RiptideServer.Library.StateMachine
             PlayerCheckedCards = true;
         }
 
-
-        // public void NewGame()
-        // {
-        //     LapBets.Clear();
-        //     PlaySeats.Clear();
-        //     DealerIndex = -1;
-        //     IsHideTurn = true;
-        //
-        //     _tablePercentSum = 0;
-        //
-        //     BetsData.Bets.Clear();
-        //
-        //     SetState<WaitingState>();
-        // }
+        public void NewGame()
+        {
+            LapBets.Clear();
+            PlaySeats.Clear();
+            DealerIndex = -1;
+            IsHideTurn = true;
+        
+            _tablePercentSum = 0;
+        
+            BetsData.Bets.Clear();
+        
+            SetState<WaitingState>();
+        }
 
         // public void TakePercent(int value)
         // {
@@ -223,7 +222,10 @@ namespace Trink_RiptideServer.Library.StateMachine
         void SetState(GameState state)
         {
             if (_currentState != null)
+            {
                 _currentState.Exit();
+                _currentState.Dispose();
+            }
 
             _currentState = state;
             _currentState.Enter();

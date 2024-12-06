@@ -4,6 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Riptide.Utils;
 using Server;
+using WindowsFormsApp1;
+using LogType = Riptide.Utils.LogType;
 
 namespace Trink_RiptideServer.Library.StateMachine
 {
@@ -13,6 +15,9 @@ namespace Trink_RiptideServer.Library.StateMachine
         private CancellationTokenSource _cancellationTokenSource;
         protected override void OnEnter()
         {
+            Tag = $"{_stateMachine.RoomController.Tag}_State_Calc";
+            Logger.LogInfo(Tag, "Enter");
+            
             _cancellationTokenSource = new CancellationTokenSource();
             _task = Task.Run(() => 
             {
@@ -22,11 +27,9 @@ namespace Trink_RiptideServer.Library.StateMachine
                 }
                 catch (Exception ex)
                 {
-                    RiptideLogger.Log(LogType.Error, $"Exception in Wait: {ex}");
+                    Logger.LogError(Tag,$"Exception : {ex}");
                 }
             }, _cancellationTokenSource.Token);
-            
-            SendEnterMessage("Підрахунок");
         }
         
         protected override void OnTick()
@@ -38,60 +41,14 @@ namespace Trink_RiptideServer.Library.StateMachine
             _cancellationTokenSource.Cancel();
         }
 
-        void CheckSvara()
+        public override void Dispose()
         {
-            
+            _cancellationTokenSource?.Cancel();
+            _task?.Dispose();
+            _cancellationTokenSource?.Dispose();
         }
         
-        void CalcReturns()
-        {
-            LogInfo("Calc returns");
-
-            List<int> bets = new List<int>();
-            for (int i = 0; i < _stateMachine.PlaySeats.Count; i++)
-            {
-                bets.Add(_stateMachine.BetsData.Bets[_stateMachine.PlaySeats[i]]);
-            }
-            
-            bets.Sort();
-            if (bets[^1] != bets[^2])
-            {
-                int maxBet = bets[^1];
-                int smallerBet = bets[^2];
-                int returnValue = maxBet - smallerBet;
-                int returnSeat = GetSeatWithBet(maxBet);
-                
-                LogInfo($"Max bet {maxBet} seat {returnSeat}. Smaller bet {smallerBet} seat {GetSeatWithBet(smallerBet)}. Return {returnValue}");
-
-                //_stateMachine.InfoText.text =
-                    //$"Повернення ({returnValue}) до {_stateMachine.Seats[returnSeat].SeatData.Nickname}({returnSeat})";
-                    
-                _stateMachine.BetsData.Bets[returnSeat] -= returnValue;
-                _stateMachine.RoomController.Seats[returnSeat].Return(returnValue);
-            }
-        }
-
-        int GetSeatWithBet(int bet)
-        {
-            for (int i = 0; i < _stateMachine.RoomController.Seats.Length; i++)
-            {
-                if (_stateMachine.BetsData.Bets.TryGetValue(i, out var value) && value == bet)
-                    return i;
-            }
-
-            return -1;
-        }
-
-        async Task CalcBankPercent()
-        {
-            int percent = 3;
-            var sum = Math.Ceiling(_stateMachine.Balance * (percent / 100.0));
-            
-            _stateMachine.RoomController.OnTakeTablePercent((int)sum);
-            await Task.Delay(1000);
-        }
-
-
+        
         async Task CalcScores()
         {
             if (_stateMachine.InGameSeats > 1)
@@ -100,10 +57,9 @@ namespace Trink_RiptideServer.Library.StateMachine
                 CalcReturns();
             }
 
-            await CalcBankPercent();
+            //TODO calc table percent
+           // await CalcBankPercent();
             
-            await Task.Delay(5000);
-            LogInfo("Calc score");
             var scores = GetScores();
             var bestScores = GetBestScores(scores);
             if (_stateMachine.InGameSeats == 1)
@@ -113,15 +69,11 @@ namespace Trink_RiptideServer.Library.StateMachine
 
                 _stateMachine.RoomController.Seats[_stateMachine.DealerIndex].Win(win);
 
-                await Task.Delay(5000);
-
                 _stateMachine.SetState<EndState>();
             }
             
             else if (bestScores.Count > 1) // 1+ winners
             {
-                await Task.Delay(3000);
-                
                 CalcWins(bestScores);
             }
             
@@ -130,14 +82,10 @@ namespace Trink_RiptideServer.Library.StateMachine
             {
                 _stateMachine.RoomController.Seats[_stateMachine.DealerIndex].ShowCardsToAll();
 
-                await Task.Delay(3000);
-
                 int win = _stateMachine.Balance;
                 _stateMachine.BetsData.Bets.Clear();
 
                 _stateMachine.RoomController.Seats[_stateMachine.DealerIndex].Win(win);
-
-                await Task.Delay(3000);
 
                 _stateMachine.SetState<EndState>();
             }
@@ -148,8 +96,6 @@ namespace Trink_RiptideServer.Library.StateMachine
                 if(!_stateMachine.LapBets.TryGetValue(bestScores[0], out lastTurn))
                     lastTurn = TurnType.No;
                 
-                LogInfo($"Player max win [{playerMaxWin}] Player last turn [{lastTurn}] table bank [{_stateMachine.Balance}]");
-
                 if (playerMaxWin >= _stateMachine.Balance || _stateMachine.PlaySeats.Count == 1) // All win
                 {
                     LogInfo("All win");
@@ -197,26 +143,45 @@ namespace Trink_RiptideServer.Library.StateMachine
             }
         }
 
-        void CalsPart()
+        void CalcReturns()
         {
-            
-        }
-
-        void CalcSvara(List<int> svaraIndexes)
-        {
-            LogInfo("Calc svara");
-
-            foreach (var svaraIndex in svaraIndexes)
+            List<int> bets = new List<int>();
+            for (int i = 0; i < _stateMachine.PlaySeats.Count; i++)
             {
-                Log($"Svara {svaraIndex}");
+                bets.Add(_stateMachine.BetsData.Bets[_stateMachine.PlaySeats[i]]);
             }
             
-            _stateMachine.SvaraEnterPrice = _stateMachine.Balance / svaraIndexes.Count;
-            _stateMachine.PlaySeats.Clear();
+            bets.Sort();
+            if (bets[^1] != bets[^2])
+            {
+                int maxBet = bets[^1];
+                int smallerBet = bets[^2];
+                int returnValue = maxBet - smallerBet;
+                int returnSeat = GetSeatWithBet(maxBet);
+                
+                _stateMachine.BetsData.Bets[returnSeat] -= returnValue;
+                _stateMachine.RoomController.Seats[returnSeat].Return(returnValue);
+            }
+        }
+
+        int GetSeatWithBet(int bet)
+        {
+            for (int i = 0; i < _stateMachine.RoomController.Seats.Length; i++)
+            {
+                if (_stateMachine.BetsData.Bets.TryGetValue(i, out var value) && value == bet)
+                    return i;
+            }
+
+            return -1;
+        }
+
+        async Task CalcBankPercent()
+        {
+            int percent = 3;
+            var sum = Math.Ceiling(_stateMachine.Balance * (percent / 100.0));
             
-            _stateMachine.PlaySeats.AddRange(svaraIndexes);
-            
-            _stateMachine.SetState<SvaraState>();
+            //_stateMachine.RoomController.OnTakeTablePercent((int)sum);
+            await Task.Delay(1000);
         }
 
         async void CalcWins(List<int> winsIndexes)
@@ -273,18 +238,6 @@ namespace Trink_RiptideServer.Library.StateMachine
             }
             
             return indexesList;
-        }
-
-        bool HaveSvara(List<int> scores, int max, out List<int> matchIndexes)
-        {
-            matchIndexes = new List<int>();
-            for (int i = 0; i < scores.Count; i++)
-            {
-                if(scores[i] == max)
-                    matchIndexes.Add(i);
-            }
-
-            return matchIndexes.Count > 1;
         }
 
         public CalcState(StateMachine stateMachine) : base(stateMachine) { }

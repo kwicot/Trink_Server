@@ -3,6 +3,7 @@ using Kwicot.Server.ClientLibrary.Models.Enums;
 using Model;
 using Riptide;
 using Server.Core.Models;
+using Trink_RiptideServer.Library.Cards;
 using WindowsFormsApp1;
 
 namespace Server.Core.Rooms
@@ -19,7 +20,9 @@ namespace Server.Core.Rooms
         public RoomController RoomController { get; set; }
 
         private int[] _cards;
-        
+
+        public int CardsSum => CardsHolder.GetCardsSum(_cards);
+
         public bool IsOut { get; set; }
         public bool IsFree => SeatData == null;
         public bool IsReady => !IsFree && SeatData.Balance > RoomController.RoomInfo.RoomSettings.MinBalance && !IsOut;
@@ -84,6 +87,8 @@ namespace Server.Core.Rooms
         public void AddCard(int index, int card)
         {
             _cards[index] = card;
+            RoomController.SendToAll(CreateMessage(ServerToClientId.addCard)
+                .AddInt(index));
         }
 
         public void ShowCardsLocal()
@@ -97,6 +102,37 @@ namespace Server.Core.Rooms
         {
             RoomController.SendToAll(CreateMessage(ServerToClientId.showCards)
                 .AddInts(_cards));
+        }
+
+        public void Turn(bool isHideTurn, float turnTime, bool isLastTurn, int minBet)
+        {
+            RoomController.SendToAll(CreateMessage(ServerToClientId.turn)
+                .AddBool(isHideTurn)
+                .AddFloat(turnTime)
+                .AddBool(isLastTurn)
+                .AddInt(minBet));
+        }
+
+        public void EndTurn()
+        {
+            RoomController.SendToAll(CreateMessage(ServerToClientId.endTurn));
+        }
+
+        public void Return(int value)
+        {
+            RoomController.SendToAll(CreateMessage(ServerToClientId.onReturn)
+                .AddInt(value));
+        }
+
+        public void Win(int value)
+        {
+            RoomController.SendToAll(CreateMessage(ServerToClientId.onWin)
+                .AddInt(value));
+        }
+
+        public void EndGame()
+        {
+            RoomController.SendToAll(CreateMessage(ServerToClientId.onEndGame));
         }
         
         

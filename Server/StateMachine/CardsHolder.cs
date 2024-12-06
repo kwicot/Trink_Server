@@ -1,4 +1,6 @@
-﻿using Core.Scripts;
+﻿using System;
+using System.Collections.Generic;
+using Core.Scripts;
 using Riptide.Utils;
 
 namespace Trink_RiptideServer.Library.Cards
