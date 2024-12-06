@@ -21,5 +21,7 @@ namespace Kwicot.Server.ClientLibrary.Models.Enums
         requestSeat = 9,
         getUserData = 10,
         
+        requestTopUpBalance = 11,
+        
     }
 }

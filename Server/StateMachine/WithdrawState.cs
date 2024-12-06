@@ -29,7 +29,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                 }
                 else
                 {
-                    //TODO offer to top up balance
+                    seats[i].OfferToTopUpBalance();
                 }
             }
 

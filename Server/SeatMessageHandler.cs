@@ -22,5 +22,21 @@ namespace WindowsFormsApp1
                     Logger.LogInfo(Tag, $"Request seat from [{fromClientId}] denied. Not in a room");
             }
         }
+        
+        [MessageHandler((ushort)ClientToServerId.requestTopUpBalance)]
+        public static async void MessageHandler_RequestTopUpBalance(ushort fromClientId, Message message)
+        {
+            if (ClientManager.List.TryGetValue(fromClientId, out var clientData))
+            {
+                if (clientData.CurrentRoom != null)
+                {
+                    int seatIndex = message.GetInt();
+                    int value = message.GetInt();
+                    clientData.CurrentRoom.Seats[seatIndex].OnRequestTopUpBalance(value);
+                }
+                else 
+                    Logger.LogInfo(Tag, $"Request TopOpBalance from [{fromClientId}] denied. Not in a room");
+            }
+        }
     }
 }

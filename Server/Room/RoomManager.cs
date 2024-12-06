@@ -133,6 +133,7 @@ namespace Server.Core.Rooms
                     }
                     
                     SendMessage(CreateMessage(ServerToClientId.joinedRoom)
+                        .AddRoomInfo(roomController.RoomInfo)
                         , clientData.ClientID);
 
                     OnRoomStateChanged(roomController);

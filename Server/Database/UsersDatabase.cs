@@ -76,6 +76,8 @@ namespace WindowsFormsApp1
             //await FirebaseDatabase.WriteDataAsync(Constants.FirebaseDatabaseUsersPath + firebaseId, userData);
         }
 
+        public static async Task UpdateUserData(UserData userData) => UpdateUserData(userData.FirebaseId, userData);
+
 
         [MessageHandler((ushort)ClientToServerId.getUserData)]
         public static async void MessageHandler_GetUserData(ushort fromClientId, Message message)

@@ -21,6 +21,17 @@ namespace Server.Core.Rooms
         public SeatController[] Seats { get; }
 
         public int Balance;
+
+        SeatController SeatOfPlayer(ClientData clientData)
+        {
+            foreach (var seatController in Seats)
+            {
+                if (seatController.ClientData != null && seatController.ClientData.ClientID == clientData.ClientID)
+                    return seatController;
+            }
+
+            return null;
+        }
         
         public RoomController(RoomSettings roomSettings)
         {
@@ -81,6 +92,10 @@ namespace Server.Core.Rooms
         public async void RemoveClient(ClientData clientData)
         {
             var userData = await UsersDatabase.GetUserData(clientData.FirebaseId);
+            var seat = SeatOfPlayer(clientData);
+
+            if (seat != null)
+                await seat.RemovePlayer();
 
             RoomInfo.Players.Remove(userData);
             clientData.CurrentRoom = null;
@@ -98,7 +113,13 @@ namespace Server.Core.Rooms
         {
             
         }
-        
+
+
+        public void SendRoomData()
+        {
+            SendToAll(CreateMessage(ServerToClientId.updateRoomData)
+                .AddRoomInfo(RoomInfo));
+        }
         
         static Message CreateMessage(ServerToClientId id) => Message.Create(MessageSendMode.Reliable, id);
         static void SendMessage(Message message, ushort clientId) => Server.SendMessage(message, clientId);

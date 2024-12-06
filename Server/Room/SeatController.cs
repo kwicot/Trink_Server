@@ -1,4 +1,5 @@
-﻿using Kwicot.Server.ClientLibrary.Models.Enums;
+﻿using System.Threading.Tasks;
+using Kwicot.Server.ClientLibrary.Models.Enums;
 using Model;
 using Riptide;
 using Server.Core.Models;
@@ -16,6 +17,8 @@ namespace Server.Core.Rooms
         public UserData UserData { get; private set; }
         
         public RoomController RoomController { get; set; }
+
+        private int[] _cards;
         
         public bool IsOut { get; set; }
         public bool IsFree => SeatData == null;
@@ -41,11 +44,15 @@ namespace Server.Core.Rooms
                 SendMessage(CreateMessage(ServerToClientId.seatRequestResult)
                         .AddBool(true)
                     , clientData.ClientID);
+                
+                OfferToTopUpBalance();
             }
         }
-
-        public async void RemovePlayer()
+        public async Task RemovePlayer()
         {
+            UserData.Balance += SeatData.Balance;
+            await UsersDatabase.UpdateUserData(UserData);
+            
             SeatData = null;
             UserData = null;
             ClientData = null;
@@ -53,6 +60,47 @@ namespace Server.Core.Rooms
             SendData();
         }
 
+        public void Withdraw(int value)
+        {
+            SeatData.Balance -= value;
+            
+            RoomController.SendToAll(CreateMessage(ServerToClientId.withdraw)
+                .AddInt(value));
+            
+            SendData();
+        }
+        public void OfferToTopUpBalance()
+        {
+            if (!IsFree)
+            {
+                SendMessage(CreateMessage(ServerToClientId.offerToTopUpBalance)
+                    .AddUserData(UserData)
+                    .AddSeatData(SeatData)
+                    , SeatData.ClientId);
+            }
+        }
+
+
+        public void AddCard(int index, int card)
+        {
+            _cards[index] = card;
+        }
+
+        public void ShowCardsLocal()
+        {
+            SendMessage(CreateMessage(ServerToClientId.showCards)
+                .AddInts(_cards)
+                , SeatData.ClientId);
+        }
+        
+        public void ShowCardsToAll()
+        {
+            RoomController.SendToAll(CreateMessage(ServerToClientId.showCards)
+                .AddInts(_cards));
+        }
+        
+        
+        
         public void SendData()
         {
             var message = CreateMessage(ServerToClientId.updateSeatData);
@@ -62,7 +110,6 @@ namespace Server.Core.Rooms
             
             RoomController.SendToAll(message);
         }
-
 
         #region Message
 
@@ -95,6 +142,43 @@ namespace Server.Core.Rooms
                     , clientData.ClientID);
                 
                 Logger.LogInfo(Tag, $"Request seat from [{clientData.ClientID}] denied. No free space.");
+            }
+        }
+
+        public async void OnRequestTopUpBalance(int value)
+        {
+            if (!IsFree && value > 0)
+            {
+                var balance = SeatData.Balance;
+                var maxAllowedBalance = RoomController.RoomInfo.RoomSettings.MaxBalance;
+                var minNeedBalance = RoomController.RoomInfo.RoomSettings.MinBalance;
+
+                var newBalance = balance + value;
+                if (newBalance <= maxAllowedBalance && newBalance >= minNeedBalance && UserData.Balance >= value)
+                {
+                    SeatData.Balance += value;
+                    UserData.Balance -= value;
+                    
+                    SendMessage(CreateMessage(ServerToClientId.topUpBalanceResult)
+                        .AddBool(true)
+                        , SeatData.ClientId);
+                    
+                    SendData();
+                }
+                else if(UserData.Balance < value)
+                {
+                    SendMessage(CreateMessage(ServerToClientId.topUpBalanceResult)
+                            .AddBool(false)
+                            .AddInt((int)ErrorType.NOT_ENOUGH_MONEY)
+                        , SeatData.ClientId);
+                }
+                else
+                {
+                    SendMessage(CreateMessage(ServerToClientId.topUpBalanceResult)
+                            .AddBool(false)
+                            .AddInt((int)ErrorType.INCORRECT_RANGE)
+                        , SeatData.ClientId);
+                }
             }
         }
 

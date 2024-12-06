@@ -39,5 +39,11 @@ namespace Kwicot.Server.ClientLibrary.Models.Enums
         
         getUserDataResult = 22,
         
+        offerToTopUpBalance = 23,
+        topUpBalanceResult = 24,
+        withdraw = 25,
+        
+        showCards = 26,
+        
     }
 }

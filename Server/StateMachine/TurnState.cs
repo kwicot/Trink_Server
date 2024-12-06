@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Riptide.Utils;
-using Server;
 using WindowsFormsApp1;
 using LogType = Riptide.Utils.LogType;
 
@@ -27,6 +26,8 @@ namespace Trink_RiptideServer.Library.StateMachine
             _stateMachine.LapBets = new Dictionary<int, TurnType>();
             _stateMachine.IsHideTurn = true;
             _stateMachine.PlayerCheckedCards = false;
+            
+            _stateMachine.OnStartTurns();
             
             _cancellationTokenSource = new CancellationTokenSource();
             _task = Task.Run(() => 
@@ -72,16 +73,16 @@ namespace Trink_RiptideServer.Library.StateMachine
                 return;
             }
 
-            if (seat.SeatData.Balance > 0 ||(_stateMachine.IsHideTurn && seat.SeatData.Balance >= _stateMachine.HideBet))
+            if (seat.SeatData.Balance > 0 ||(_stateMachine.IsHideTurn && seat.SeatData.Balance >= _stateMachine.Bet))
             {
                 await Task.Delay((int)(Config.TurnDelay));
                
-                if (_stateMachine.IsHideTurn && seat.SeatData.Balance < _stateMachine.HideBet)
+                if (_stateMachine.IsHideTurn && seat.SeatData.Balance < _stateMachine.Bet)
                 {
                     _stateMachine.IsHideTurn = false;
                     _stateMachine.OnSeatCheckCards();
                 }
-
+                
                 bool lastTurnOnLap = _currentTurn >= _stateMachine.InGameSeats - 1;
                 seat.Turn(_stateMachine.IsHideTurn, Config.TurnWait, lastTurnOnLap, _stateMachine.MinBet, _stateMachine.HideBet);
 

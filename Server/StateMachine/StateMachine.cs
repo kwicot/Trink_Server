@@ -33,6 +33,7 @@ namespace Trink_RiptideServer.Library.StateMachine
         
         
         public bool IsHideTurn { get; set; }
+        public int Bet { get; set; }
         public int DealerIndex { get; set; } = -1;
         public List<int> PlaySeats { get; set; } = new();
         public BetsData BetsData { get; set; } = new BetsData();
@@ -81,24 +82,6 @@ namespace Trink_RiptideServer.Library.StateMachine
             }
         }
 
-
-        
-        public bool IsWaitingState => _currentState == waitingState | _currentState == endState;
-
-        public bool CanAddMoney
-        {
-            get
-            {
-                bool isWaitingState = _currentState == waitingState;
-                bool isEndState = _currentState == endState;
-                bool isPassTurn = false;
-
-                bool result = isWaitingState || isEndState || isPassTurn;
-
-                return result;
-            }
-        }
-
         public int GetMaxBet()
         {
             int maxBet = Int32.MinValue;
@@ -133,26 +116,11 @@ namespace Trink_RiptideServer.Library.StateMachine
             SetState(waitingState);
         }
 
-
-        public void NewGame()
+        public void OnStartTurns()
         {
-            LapBets.Clear();
-            PlaySeats.Clear();
-            DealerIndex = -1;
-            IsHideTurn = true;
-
-            _tablePercentSum = 0;
-
-            BetsData.Bets.Clear();
-
-            SetState<WaitingState>();
+            Bet = RoomController.RoomInfo.RoomSettings.StartBet;
         }
-
-        public void TakePercent(int value)
-        {
-            _tablePercentSum = value;
-        }
-
+        
         public void OnSeatCheckCards()
         {
             if (_currentState == turnState)
@@ -176,28 +144,50 @@ namespace Trink_RiptideServer.Library.StateMachine
             PlayerCheckedCards = true;
         }
 
-        public void OnSeatTurn(SeatController seatController, int value)
-        {
-            if (_currentState == turnState)
-            {
-                turnState.OnTurn(seatController.Index, value);
-            }
-        }
 
-        public void OnPlayerLeft(int seatIndex)
-        {
-            if (_currentState == turnState)
-            {
-                if(turnState.CurrentTurnSeatIndex == seatIndex)
-                    turnState.OnTurn(seatIndex, -1);
-                
-                PlaySeats.Remove(seatIndex);
-            }
-            else
-            {
-                PlaySeats.Remove(seatIndex);
-            }
-        }
+        // public void NewGame()
+        // {
+        //     LapBets.Clear();
+        //     PlaySeats.Clear();
+        //     DealerIndex = -1;
+        //     IsHideTurn = true;
+        //
+        //     _tablePercentSum = 0;
+        //
+        //     BetsData.Bets.Clear();
+        //
+        //     SetState<WaitingState>();
+        // }
+
+        // public void TakePercent(int value)
+        // {
+        //     _tablePercentSum = value;
+        // }
+        //
+        
+        //
+        // public void OnSeatTurn(SeatController seatController, int value)
+        // {
+        //     if (_currentState == turnState)
+        //     {
+        //         turnState.OnTurn(seatController.Index, value);
+        //     }
+        // }
+        //
+        // public void OnPlayerLeft(int seatIndex)
+        // {
+        //     if (_currentState == turnState)
+        //     {
+        //         if(turnState.CurrentTurnSeatIndex == seatIndex)
+        //             turnState.OnTurn(seatIndex, -1);
+        //         
+        //         PlaySeats.Remove(seatIndex);
+        //     }
+        //     else
+        //     {
+        //         PlaySeats.Remove(seatIndex);
+        //     }
+        // }
 
         public void SendData()
         {
