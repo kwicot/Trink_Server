@@ -208,6 +208,7 @@ namespace Trink_RiptideServer.Library.StateMachine
             var message = CreateMessage(ServerToClientId.updateStateMachineData);
             message.AddBetsData(BetsData);
             message.AddInts(PlaySeats.ToArray());
+            message.AddInt(Balance);
 
             RoomController.SendToAll(message);
         }
