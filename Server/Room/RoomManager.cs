@@ -223,7 +223,7 @@ namespace Server.Core.Rooms
                 if (clientData.IsConnectedToMaster && clientData.IsConnectedToLobby)
                 {
                     SendMessage(CreateMessage(ServerToClientId.roomListUpdate)
-                            .AddRoomInfo(roomController.RoomInfo)
+                            .AddRoomsInfo(new []{roomController.RoomInfo})
                         , clientData.ClientID);
                 }
             }
@@ -236,7 +236,7 @@ namespace Server.Core.Rooms
                 if (clientData.IsConnectedToMaster && clientData.IsConnectedToLobby)
                 {
                     SendMessage(CreateMessage(ServerToClientId.roomListUpdate)
-                            .AddRoomInfo(roomController.RoomInfo)
+                            .AddRoomsInfo(new []{roomController.RoomInfo})
                         , clientData.ClientID);
                 }
             }
@@ -244,13 +244,15 @@ namespace Server.Core.Rooms
         
         private static void OnConnectedToLobby(ClientData clientData)
         {
-            var message = CreateMessage(ServerToClientId.roomListUpdate);
+            List<RoomInfo> visibleRooms = new List<RoomInfo>();
             foreach (var roomController in _roomsMap.Values)
             {
                 if (roomController.RoomInfo.IsVisible)
-                    message.AddRoomInfo(roomController.RoomInfo);
+                    visibleRooms.Add(roomController.RoomInfo);
             }    
             
+            var message = CreateMessage(ServerToClientId.roomListUpdate);
+            message.AddRoomsInfo(visibleRooms.ToArray());
             SendMessage(message, clientData.ClientID);
         }
         

@@ -48,7 +48,6 @@ namespace Trink_RiptideServer.Library.StateMachine
         public override void Dispose()
         {
             _cancellationTokenSource?.Cancel();
-            _task?.Dispose();
             _cancellationTokenSource?.Dispose();
         }
 

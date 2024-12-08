@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Model;
 using Server.Core;
 using Server.Core.Rooms;
 using WindowsFormsApp1.Database;
@@ -45,7 +46,8 @@ namespace WindowsFormsApp1
                 config = new Config()
                 {
                     RegisterBalance = 1000,
-                    WriteLogToFile = false
+                    WriteLogToFile = false,
+                    StateMachineConfig = new StateMachineConfig()
                 };
                 SaveConfig(config);
             }

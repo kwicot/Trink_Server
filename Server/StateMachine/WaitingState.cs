@@ -45,21 +45,44 @@ namespace Trink_RiptideServer.Library.StateMachine
         public override void Dispose()
         {
             _cancellationTokenSource?.Cancel();
-            _task?.Dispose();
             _cancellationTokenSource?.Dispose();
         }
 
 
         async Task Wait()
         {
+            
             while (!_stateMachine.IsReady)
             {
-                await Task.Delay(1000);
-                Logger.LogInfo(Tag,"Not ready to start. Waiting 1s");
+                await Task.Delay(100);
+                Logger.LogInfo(Tag, "Waiting ready");
+
+                if (_cancellationTokenSource.IsCancellationRequested)
+                {
+                    Logger.LogInfo(Tag, "Cancel waiting");
+                    return;
+                }
             }
 
-            await Task.Delay((int)(Config.StartDelay));
             
+            int time = (int)Config.StartDelay / 1000;
+            DateTime startTime = DateTime.Now;
+            while ( time > 0)
+            {
+                await Task.Delay(100);
+                Logger.LogInfo(Tag, $"Waiting delay {time}");
+
+                var timeLeft = DateTime.Now- startTime;
+                time -= timeLeft.Seconds;
+
+                if (_cancellationTokenSource.IsCancellationRequested)
+                {
+                    Logger.LogInfo(Tag, "Cancel waiting");
+                    return;
+                }
+            }
+            
+            Logger.LogInfo(Tag, "End waiting");
             _stateMachine.SetState<WithdrawState>();
         }
         

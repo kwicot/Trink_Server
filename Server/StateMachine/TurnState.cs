@@ -22,26 +22,16 @@ namespace Trink_RiptideServer.Library.StateMachine
             Logger.LogInfo(Tag, "Enter");
             
             _currentTurn = 0;
-            _stateMachine.LapTurns = 0;
+            _stateMachine.LapTurns = 1;
             _stateMachine.LapBets = new Dictionary<int, TurnType>();
             _stateMachine.IsHideTurn = true;
             _stateMachine.PlayerCheckedCards = false;
             
             _stateMachine.OnStartTurns();
+            _stateMachine.BetsData = new BetsData();
             
             _cancellationTokenSource = new CancellationTokenSource();
-            _task = Task.Run(() => 
-            {
-                try
-                {
-                    TurnWait().Wait();
-                }
-                catch (Exception ex)
-                {
-                    RiptideLogger.Log(LogType.Error, $"Exception in Wait: {ex}");
-                }
-            }, _cancellationTokenSource.Token);
-
+            _task = TurnWait();
         }
 
         protected override void OnTick()
@@ -56,12 +46,13 @@ namespace Trink_RiptideServer.Library.StateMachine
         public override void Dispose()
         {
             _cancellationTokenSource?.Cancel();
-            _task?.Dispose();
             _cancellationTokenSource?.Dispose();
         }
 
         async Task TurnWait()
         {
+            Logger.LogInfo(Tag, $"New turn wait [{_currentTurn}]");
+            
             int seatIndex = _stateMachine.PlaySeats[_currentTurn];
             var seat = _stateMachine.RoomController.Seats[seatIndex];
 
@@ -73,7 +64,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                 return;
             }
 
-            if (seat.SeatData.Balance > 0 ||(_stateMachine.IsHideTurn && seat.SeatData.Balance >= _stateMachine.Bet))
+            if (seat.SeatData.Balance > 0 ||(_stateMachine.IsHideTurn && seat.SeatData.Balance >= _stateMachine.Bet *2))
             {
                 await Task.Delay((int)(Config.TurnDelay));
                
@@ -85,13 +76,15 @@ namespace Trink_RiptideServer.Library.StateMachine
                 
                 bool lastTurnOnLap = _currentTurn >= _stateMachine.InGameSeats - 1;
                 seat.Turn(_stateMachine.IsHideTurn, Config.TurnWait, lastTurnOnLap, _stateMachine.Bet);
-
-                float time = Config.TurnWait;
-                while (time >= 0)
+                
+                float time = (int)Config.TurnWait;
+                while ( time > 0)
                 {
-                    
-                    time-- ;
-                    await Task.Delay((int)(1 * 1000));
+                    await Task.Delay(100);
+                    time -= 100;
+                    Logger.LogInfo(Tag, $"Time left: {time}");
+                    if(_cancellationTokenSource.IsCancellationRequested)
+                        return;
                 }
                 
                 seat.EndTurn();
@@ -108,7 +101,7 @@ namespace Trink_RiptideServer.Library.StateMachine
             _stateMachine.LapTurns++;
             
             _cancellationTokenSource.Cancel();
-            
+
             if (value == -1)
                 OnPassTurn(seatIndex);
             
@@ -123,6 +116,8 @@ namespace Trink_RiptideServer.Library.StateMachine
             
             else if (value >= _stateMachine.Bet)
                 OnIncrease(seatIndex, value);
+            
+            _stateMachine.SendData();
         }
         int CanBet(int value, out int maxValue)
         {
@@ -166,26 +161,11 @@ namespace Trink_RiptideServer.Library.StateMachine
 
         void Next()
         {
-            LogInfo("Next");
 
             _cancellationTokenSource.Cancel();
 
             _currentTurn++;
-            if (_stateMachine.PlaySeats.Count > _currentTurn)
-            {
-                // LogInfo($"Current turn [{_currentTurn}] seatIndex [{_stateMachine.PlaySeats[_currentTurn]}] \n " +
-                //         $"Max turn {_stateMachine.PlaySeats.Count - 1} \n " +
-                //         $"LapTurns [{_stateMachine.LapTurns}] InGameSeats [{_stateMachine.InGameSeats}] \n " +
-                //         $"CanBet {CanBet(_stateMachine.MinBet, out var bet)} Max {bet}");
-            }
-            else
-            {
-                // LogInfo($"Current turn [{_currentTurn}] out of seats index \n " +
-                //         $"Max turn {_stateMachine.PlaySeats.Count - 1} \n " +
-                //         $"LapTurns [{_stateMachine.LapTurns}] InGameSeats [{_stateMachine.InGameSeats}] \n " +
-                //         $"CanBet {CanBet(_stateMachine.MinBet, out var bet)} Max {bet}");
-            }
-
+            Logger.LogInfo(Tag, $"Next turn [{_currentTurn}]");
 
             bool allTurn = _stateMachine.LapTurns >= _stateMachine.PlaySeats.Count;
             bool onlyOne = _stateMachine.InGameSeats == 1;
@@ -226,12 +206,12 @@ namespace Trink_RiptideServer.Library.StateMachine
                 return;
             }
 
-            TurnWait();
+            _task = TurnWait();
         }
 
         void OnEndLap()
         {
-            LogInfo("On end lap");
+            Logger.LogInfo(Tag, "OnEndLap");
             
             _cancellationTokenSource.Cancel();
             
@@ -246,7 +226,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                     if (increaseCount > 1)
                     {
                         _currentTurn = 0;
-                        _task = Task.Run(TurnWait, _cancellationTokenSource.Token);
+                        _task = TurnWait();
                         return;
                     }
                 }
@@ -270,8 +250,14 @@ namespace Trink_RiptideServer.Library.StateMachine
         
         private void OnHideBet(int seatIndex)
         {
-            _stateMachine.BetsData.Bets[seatIndex] += _stateMachine.Bet * 2;
-            LogInfo($"On hide bet seat: {seatIndex} bet: {_stateMachine.Bet * 2}. Total bets {_stateMachine.BetsData.Bets[seatIndex]} ");
+            int value = _stateMachine.Bet * 2;
+            
+            if(_stateMachine.BetsData.Bets.ContainsKey(seatIndex))
+                _stateMachine.BetsData.Bets[seatIndex] += value;
+            else
+                _stateMachine.BetsData.Bets[seatIndex] = value;
+            
+            LogInfo($"On hide bet seat: {seatIndex} bet: {value}. Total bets {_stateMachine.BetsData.Bets[seatIndex]} ");
             
             _stateMachine.LapBets[seatIndex] = TurnType.Hide;
             
@@ -279,9 +265,9 @@ namespace Trink_RiptideServer.Library.StateMachine
              ShiftTurnQueue(playIndex);
              
 
-            _stateMachine.RoomController.Seats[seatIndex].Withdraw(_stateMachine.Bet * 2);
+            _stateMachine.RoomController.Seats[seatIndex].Withdraw(value);
             
-            _stateMachine.Bet = _stateMachine.Bet * 2;
+            _stateMachine.Bet = value;
 
 
             if (_stateMachine.IsHideTurn && _stateMachine.PlayerCheckedCards)
@@ -412,6 +398,7 @@ namespace Trink_RiptideServer.Library.StateMachine
 
         int GetPlayIndex(int index)
         {
+            Logger.LogInfo(Tag, $"Get play [{index}] index");
             for (int i = 0; i < _stateMachine.PlaySeats.Count; i++)
             {
                 if (_stateMachine.PlaySeats[i] == index)

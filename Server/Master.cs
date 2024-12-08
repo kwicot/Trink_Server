@@ -36,6 +36,7 @@ namespace Server.Core
                 else
                 {
                     var firebaseId = message.GetString();
+                    Logger.LogInfo(Tag, $"Request firebase id : [{firebaseId}]");
                     if (!string.IsNullOrWhiteSpace(firebaseId))
                     {
                         clientData.FirebaseId = firebaseId;
@@ -71,23 +72,30 @@ namespace Server.Core
 
             if (ClientManager.List.TryGetValue(fromClientId, out ClientData clientData))
             {
-                if (clientData.IsConnectedToMaster)
-                {
-                    clientData.FirebaseId = null;
-                    OnDisconnected?.Invoke(clientData);
+                DisconnectClient(clientData);
+            }
+        }
+
+        public static async void DisconnectClient(ClientData clientData)
+        {
+            var userData = await UsersDatabase.GetUserData(clientData.FirebaseId);
+            await UsersDatabase.UpdateUserData(userData);
+            
+            if (clientData.IsConnectedToMaster)
+            {
+                clientData.FirebaseId = null;
+                OnDisconnected?.Invoke(clientData);
                     
-                    SendMessage(CreateMessage(ServerToClientId.disconnectedFromMaster)
-                    , fromClientId);
+                SendMessage(CreateMessage(ServerToClientId.disconnectedFromMaster)
+                    , clientData.ClientID);
                     
-                    Logger.LogInfo(Tag, $"Client [{fromClientId}] [{clientData.FirebaseId}] disconnected");
-                }
-                else
-                {
-                    SendMessage(CreateMessage(ServerToClientId.disconnectFromMasterFail)
+                Logger.LogInfo(Tag, $"Client [{clientData.ClientID}] [{clientData.FirebaseId}] disconnected");
+            }
+            else
+            {
+                SendMessage(CreateMessage(ServerToClientId.disconnectFromMasterFail)
                         .AddInt((int)ErrorType.NOT_CONNECTED)
-                        , fromClientId);
-                    
-                }
+                    , clientData.ClientID);
             }
         }
         

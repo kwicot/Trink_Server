@@ -36,15 +36,19 @@ namespace Server.Core
                 DisconnectionTime = DateTime.Now,
             };
         }
-        public static void OnClientDisconnected(object sender, ServerDisconnectedEventArgs e)
+        public static async void OnClientDisconnected(object sender, ServerDisconnectedEventArgs e)
         {
             Logger.LogInfo(Tag,$"Client with id [{e.Client.Id}] disconnected via {e.Reason}");
 
             if (List.TryGetValue(e.Client.Id, out ClientData clientData))
             {
-                clientData.FirebaseId = string.Empty;
-                clientData.IsConnectedToServer = false;
+                if (clientData.CurrentRoom != null)
+                    await clientData.CurrentRoom.RemoveClient(clientData);
                 
+                if(clientData.IsConnectedToLobby)
+                    Master.DisconnectClient(clientData);
+                
+                clientData.IsConnectedToServer = false;
                 clientData.DisconnectionTime = DateTime.Now;
             }
         }

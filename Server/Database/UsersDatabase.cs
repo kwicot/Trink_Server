@@ -82,9 +82,9 @@ namespace WindowsFormsApp1
         [MessageHandler((ushort)ClientToServerId.getUserData)]
         public static async void MessageHandler_GetUserData(ushort fromClientId, Message message)
         {
-            string firebaseId = message.GetString();
             string requestId = message.GetString();
-
+            string firebaseId = message.GetString();
+            
             var userData = await GetUserData(firebaseId);
 
             if (userData != null)
@@ -102,6 +102,8 @@ namespace WindowsFormsApp1
                         .AddBool(false)
                         .AddInt((int)ErrorType.DOES_NOT_EXIST)
                     , fromClientId);
+                
+                Logger.LogInfo(Tag, "No user data found");
             }
         }
         

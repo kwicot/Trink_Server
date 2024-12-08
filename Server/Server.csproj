@@ -12,7 +12,7 @@
         <FileAlignment>512</FileAlignment>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
         <Deterministic>true</Deterministic>
-        <LangVersion>9</LangVersion>
+        <LangVersion>10</LangVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -149,8 +149,6 @@
         <Compile Include="Room\SeatController.cs" />
         <Compile Include="SeatMessageHandler.cs" />
         <Compile Include="Server.cs" />
-        <Compile Include="StateMachine.cs" />
-        <Compile Include="StateMachine\BetsData.cs" />
         <Compile Include="StateMachine\CalcState.cs" />
         <Compile Include="StateMachine\CardsHolder.cs" />
         <Compile Include="StateMachine\DealState.cs" />

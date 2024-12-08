@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Kwicot.Server.ClientLibrary.Models.Enums;
+using Model;
 using Riptide;
 using Server.Core.Rooms;
 using Trink_RiptideServer.Library.Cards;
@@ -120,6 +121,20 @@ namespace Trink_RiptideServer.Library.StateMachine
         {
             Bet = RoomController.RoomInfo.RoomSettings.StartBet;
         }
+
+        public void OnSeatTurn(int seatIndex, int value)
+        {
+            if (_currentState == turnState)
+            {
+                turnState.OnTurn(seatIndex, value);
+                
+                RoomController.SendToAll(CreateMessage(ServerToClientId.seatTurn)
+                    .AddInt(seatIndex)
+                    .AddInt(value));
+                
+                SendData();
+            }
+        }
         
         public void OnSeatCheckCards()
         {
@@ -190,16 +205,13 @@ namespace Trink_RiptideServer.Library.StateMachine
 
         public void SendData()
         {
-            CreateMessage(ServerToClientId.updateStateMachineData)
-                ;
-            foreach (var infoPlayer in RoomController.RoomInfo.Players)
-            {
-                
-            }   
+            var message = CreateMessage(ServerToClientId.updateStateMachineData);
+            message.AddBetsData(BetsData);
+            message.AddInts(PlaySeats.ToArray());
+
+            RoomController.SendToAll(message);
         }
         
-
-
 
         void InitializeStates()
         {

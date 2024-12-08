@@ -39,6 +39,7 @@ namespace Server.Core.Rooms
             };
             ClientData = clientData;
             UserData = userData;
+            _cards = new int[3];
             
             SendData();
             
@@ -62,6 +63,7 @@ namespace Server.Core.Rooms
             
             SendData();
         }
+        
 
         public void Withdraw(int value)
         {
@@ -96,6 +98,9 @@ namespace Server.Core.Rooms
             SendMessage(CreateMessage(ServerToClientId.showCards)
                 .AddInts(_cards)
                 , SeatData.ClientId);
+            
+            RoomController.SendToAll(CreateMessage(ServerToClientId.seatCheckCards)
+                , SeatData.ClientId);
         }
         
         public void ShowCardsToAll()
@@ -106,9 +111,9 @@ namespace Server.Core.Rooms
 
         public void Turn(bool isHideTurn, float turnTime, bool isLastTurn, int minBet)
         {
-            RoomController.SendToAll(CreateMessage(ServerToClientId.turn)
+            RoomController.SendToAll(CreateMessage(ServerToClientId.turnRequest)
                 .AddBool(isHideTurn)
-                .AddFloat(turnTime)
+                .AddFloat(turnTime / 1000)
                 .AddBool(isLastTurn)
                 .AddInt(minBet));
         }
@@ -145,6 +150,15 @@ namespace Server.Core.Rooms
                 message.AddSeatData(SeatData);
             
             RoomController.SendToAll(message);
+        }
+        public void SendData(ushort targetClient)
+        {
+            var message = CreateMessage(ServerToClientId.updateSeatData);
+            message.AddBool(IsFree);
+            if (!IsFree)
+                message.AddSeatData(SeatData);
+
+            SendMessage(message, targetClient);
         }
 
         #region Message
@@ -185,6 +199,8 @@ namespace Server.Core.Rooms
         {
             if (!IsFree && value > 0)
             {
+                Logger.LogInfo(Tag, $"Request to top up balance for [{value}]");
+
                 var balance = SeatData.Balance;
                 var maxAllowedBalance = RoomController.RoomInfo.RoomSettings.MaxBalance;
                 var minNeedBalance = RoomController.RoomInfo.RoomSettings.MinBalance;
@@ -207,6 +223,8 @@ namespace Server.Core.Rooms
                             .AddBool(false)
                             .AddInt((int)ErrorType.NOT_ENOUGH_MONEY)
                         , SeatData.ClientId);
+
+                    await RemovePlayer();
                 }
                 else
                 {
@@ -216,6 +234,8 @@ namespace Server.Core.Rooms
                         , SeatData.ClientId);
                 }
             }
+            else if (!IsFree && value <= 0)
+                await RemovePlayer();
         }
 
         #endregion

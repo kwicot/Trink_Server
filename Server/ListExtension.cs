@@ -13,7 +13,7 @@ public static class ListExtension
                 {
                     list[i] = list[i+1];
                 }
-                list[^1] = tmp;
+                list[list.Count-1] = tmp;
             }
         }
     }

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Kwicot.Server.ClientLibrary.Models.Enums;
 using Model;
 using Riptide;
 using Server.Core.Models;
+using Trink_RiptideServer.Library.StateMachine;
 using WindowsFormsApp1;
 using WindowsFormsApp1.Room;
 
@@ -19,7 +21,7 @@ namespace Server.Core.Rooms
         private DateTime _removeTimerStart;
         
         public SeatController[] Seats { get; }
-
+        public StateMachine StateMachine { get; private set; }
         public int Balance;
 
         SeatController SeatOfPlayer(ClientData clientData)
@@ -52,6 +54,8 @@ namespace Server.Core.Rooms
                 new SeatController() { Index = 6, RoomController = this },
                 new SeatController() { Index = 7, RoomController = this }
             };
+
+            StateMachine = new StateMachine(this);
 
             Logger.LogInfo(Tag, $"Room created");
 
@@ -89,7 +93,7 @@ namespace Server.Core.Rooms
             return true;
         }
 
-        public async void RemoveClient(ClientData clientData)
+        public async Task RemoveClient(ClientData clientData)
         {
             var userData = await UsersDatabase.GetUserData(clientData.FirebaseId);
             var seat = SeatOfPlayer(clientData);
@@ -111,10 +115,15 @@ namespace Server.Core.Rooms
 
         public void OnPlayerLoadedScene(ClientData clientData)
         {
-            
+            SendDataToNewPlayer(clientData);
         }
 
 
+        void SendDataToNewPlayer(ClientData clientData)
+        {
+            foreach (var seat in Seats)
+                seat.SendData(clientData.ClientID);
+        }
         public void SendRoomData()
         {
             SendToAll(CreateMessage(ServerToClientId.updateRoomData)
@@ -124,11 +133,12 @@ namespace Server.Core.Rooms
         static Message CreateMessage(ServerToClientId id) => Message.Create(MessageSendMode.Reliable, id);
         static void SendMessage(Message message, ushort clientId) => Server.SendMessage(message, clientId);
 
-        public void SendToAll(Message message)
+        public void SendToAll(Message message, params ushort[] excludeClients)
         {
             foreach (var infoPlayer in RoomInfo.Players)
             {
-                SendMessage(message, infoPlayer.ClientId);
+                if(!excludeClients.Contains(infoPlayer.ClientId))
+                    SendMessage(message, infoPlayer.ClientId);
             }
         }
     }

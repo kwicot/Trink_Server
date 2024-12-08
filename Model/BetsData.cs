@@ -1,6 +1,8 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using Model;
+using Riptide;
 
 namespace Trink_RiptideServer
 {
@@ -49,6 +51,38 @@ namespace Trink_RiptideServer
                     count++;
             }
             return Bets[index] * count;            
+        }
+        
+        
+        public Message GetMessageData(Message message)
+        {
+            message.AddInt(Bets.Count);
+            foreach (var bet in Bets)
+            {
+                message.AddInt(bet.Key);
+                message.AddInt(bet.Value);
+            }
+            
+            return message;
+        }
+
+        public static BetsData GetDataFromMessage(Message message)
+        {
+            var betsData = new BetsData();
+            betsData.Bets = new Dictionary<int, int>();
+            
+            int count = message.GetInt();
+            if (count > 0)
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    int key = message.GetInt();
+                    int value = message.GetInt();
+                    betsData.Bets.Add(key, value);
+                }
+            }
+
+            return betsData;
         }
     }
 }

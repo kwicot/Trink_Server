@@ -44,13 +44,13 @@ namespace Kwicot.Server.ClientLibrary.Models.Enums
         withdraw = 25,
 
         addCard = 26,
-        turn = 27,
+        turnRequest = 27,
         endTurn = 28,
         showCards = 29,
-        onReturn = 30,
-        onWin = 31,
-        onEndGame = 32,
-        
-        
+        seatCheckCards = 30,
+        onReturn = 31,
+        onWin = 32,
+        onEndGame = 33,
+        seatTurn = 34
     }
 }

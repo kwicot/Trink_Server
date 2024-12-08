@@ -44,7 +44,6 @@ namespace Trink_RiptideServer.Library.StateMachine
         public override void Dispose()
         {
             _cancellationTokenSource?.Cancel();
-            _task?.Dispose();
             _cancellationTokenSource?.Dispose();
         }
         
@@ -152,10 +151,10 @@ namespace Trink_RiptideServer.Library.StateMachine
             }
             
             bets.Sort();
-            if (bets[^1] != bets[^2])
+            if (bets[bets.Count - 1] != bets[bets.Count-2])
             {
-                int maxBet = bets[^1];
-                int smallerBet = bets[^2];
+                int maxBet = bets[bets.Count-1];
+                int smallerBet = bets[bets.Count-2];
                 int returnValue = maxBet - smallerBet;
                 int returnSeat = GetSeatWithBet(maxBet);
                 

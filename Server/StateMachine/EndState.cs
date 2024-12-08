@@ -40,7 +40,6 @@ namespace Trink_RiptideServer.Library.StateMachine
         public override void Dispose()
         {
             _cancellationTokenSource?.Cancel();
-            _task?.Dispose();
             _cancellationTokenSource?.Dispose();
         }
 
@@ -51,7 +50,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                 seat.EndGame();
             }
 
-            await Task.Delay((int)(Program.Config.StateMachineConfig.EndDelay * 1000));
+            await Task.Delay((int)(Program.Config.StateMachineConfig.EndDelay));
 
             _stateMachine.NewGame();
         }

@@ -22,6 +22,7 @@ namespace Kwicot.Server.ClientLibrary.Models.Enums
         getUserData = 10,
         
         requestTopUpBalance = 11,
-        
+        turn = 12,
+        checkCards = 13,
     }
 }
