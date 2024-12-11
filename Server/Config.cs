@@ -7,7 +7,8 @@ namespace Server.Core
     public class Config
     {
         public int RegisterBalance = 1000;
-        public bool WriteLogToFile = false;
+        public bool WriteLogToFile = true;
+        
         public StateMachineConfig StateMachineConfig;
     }
 }

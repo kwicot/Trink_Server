@@ -51,6 +51,8 @@ namespace Kwicot.Server.ClientLibrary.Models.Enums
         onReturn = 31,
         onWin = 32,
         onEndGame = 33,
-        seatTurn = 34
+        seatTurn = 34,
+        updateRoomStatus = 35
+        
     }
 }

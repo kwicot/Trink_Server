@@ -18,6 +18,9 @@ namespace Trink_RiptideServer.Library.StateMachine
             Logger.LogInfo(Tag, "Enter");
             
             _cancellationTokenSource = new CancellationTokenSource();
+            _stateMachine.SendStatus("Очікування гравців");
+
+            
             _task = Task.Run(() => 
             {
                 try
@@ -51,12 +54,11 @@ namespace Trink_RiptideServer.Library.StateMachine
 
         async Task Wait()
         {
+            await Task.Delay((int)Config.DebugDelay);
             
             while (!_stateMachine.IsReady)
             {
                 await Task.Delay(100);
-                Logger.LogInfo(Tag, "Waiting ready");
-
                 if (_cancellationTokenSource.IsCancellationRequested)
                 {
                     Logger.LogInfo(Tag, "Cancel waiting");
@@ -70,7 +72,6 @@ namespace Trink_RiptideServer.Library.StateMachine
             while ( time > 0)
             {
                 await Task.Delay(100);
-                Logger.LogInfo(Tag, $"Waiting delay {time}");
 
                 var timeLeft = DateTime.Now- startTime;
                 time -= timeLeft.Seconds;

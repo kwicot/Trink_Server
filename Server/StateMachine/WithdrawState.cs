@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Web.Configuration;
 using WindowsFormsApp1;
 
@@ -7,10 +8,13 @@ namespace Trink_RiptideServer.Library.StateMachine
 {
     public class WithdrawState : GameState
     {
-        protected override void OnEnter()
+        protected override async void OnEnter()
         {
             Tag = $"{_stateMachine.RoomController.Tag}_State_Withdraw";
             Logger.LogInfo(Tag, "Enter");
+            
+            _stateMachine.SendStatus("Збір вступних");
+
             
             _stateMachine.BetsData = new BetsData()
             {
@@ -24,17 +28,20 @@ namespace Trink_RiptideServer.Library.StateMachine
                 if (seats[i].IsReady && seats[i].SeatData.Balance >= RoomSettings.MinBalance)
                 {
                     seats[i].Withdraw(RoomSettings.StartBet);
+                    
                     readySeats.Add(i);
-                    _stateMachine.BetsData.Bets[i] = RoomSettings.StartBet;
+                    _stateMachine.BetsData.Bets[seats[i].Index] = RoomSettings.StartBet;
                 }
                 else
                 {
                     seats[i].OfferToTopUpBalance();
                 }
             }
-
             _stateMachine.PlaySeats = readySeats;
+            
+            await Task.Delay((int)Config.DebugDelay);
 
+            _stateMachine.SendData();
             
             _stateMachine.SetState<DealState>();
         }

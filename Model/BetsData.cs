@@ -10,7 +10,6 @@ namespace Trink_RiptideServer
     public class BetsData
     {
         public Dictionary<int, int> Bets = new();
-        
         public int TotalBank
         {
             get
@@ -62,7 +61,7 @@ namespace Trink_RiptideServer
                 message.AddInt(bet.Key);
                 message.AddInt(bet.Value);
             }
-            
+
             return message;
         }
 
@@ -81,7 +80,9 @@ namespace Trink_RiptideServer
                     betsData.Bets.Add(key, value);
                 }
             }
-
+            
+            
+            
             return betsData;
         }
     }

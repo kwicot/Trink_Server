@@ -1,9 +1,0 @@
-2024-12-01 23:37:29 : Info : FILESHELPER : Loaded file on path: C:\Users\kwicot\RiderProjects\Server\Server\bin\Debug\Data\Config.cfg
-2024-12-01 23:37:29 : Info : FIREBASE_SERVICE : Initialized. Access token [ya29.c.c0ASRK0GakJ8Xax9D3_F-cIqpwSe-3H56dBhVgHUOHzCrr15_XPOyG0lPdOhsglAJdSYieBbJxVY-S1tcz4Ps9I02pWYBifj1Q5S6gp_3h3wXSh2r3s-3s4lvXod0B_GNozYMeQOhcMTE_ZTUDZVLL-z0-lAa_mMMUnPRPN275tqsOyfCaKsHRWPnn4Zc-LjMYlSFV-XvUIQkqK-61C_dlspGp4QuN0z_vEM1r0s3lbqMri8WAx4L6aT3MSGn74NQ80wEuXv799kLMTQ07qnizCMqOl8n839BUMhnoDsJXnqtzXcgKx9_4g4psH-CYbIzg38stgrOz-n1S9HK38lMNHmAPF9TteFYaW-Bon86M1SM9RrYh3azeNaEu8gT387D3bJ3xXMZt1Wxb8MrexYy4Ft7p14Ilb2_jnfshrr4IkIBuZo827dxs7BO7xb1ut435tkXweuj7m8_nVMSg70UjMq_d6omVujlVqj2qSSnwdbugoQSiiv_R3YUy3Sb0OkFyhylkn90ccomShiRZf-URRQfva3exy5nVX38tWZWp_ZXn7dxMpeZrptjWtJlyccmzZo0ob3Uobz4eqk5YqSlzk-3x6g2fMpVRhp6XotxZg4wg2o_yl-_0B5afwvbqFBhq1xRbajw32yi_rUozS9XZ8jcYnckrUiMl8zB_e1meUOoQy0QhiFZMldOJBqk27VcXF_1mm0xrif2aFJ65VXOsW2zXkFilZk8l79Zvp3v2X7cUBJp-h6XwduWeRtuQqtpY-3BMajM2U1mUg9pmXaSIbFkqJ9-JoYm1Zl3zkd595b3StW4moQMWYMZXZsuf3u6g-74qkcFxm4g3f__Q0rpmM9gSooOqatFWxFlRdRf0uRlRlgWayf3BIsk73YQV-InRYvdMvXqnaqvwhkwUhsRlzbrznIZz4WuVmrYqO9oy6Q17U6rSVhq6in_csQbaJW_M3WvWvXf8pO-h3jh1Fx39VmIF3SF2Zbl-O7I3IwW62p0lds2V4wVI060]
-2024-12-01 23:37:29 : Info : FILESHELPER : Cant load file on path: C:\Users\kwicot\RiderProjects\Server\Server\bin\Debug\Data\Users.db.  File not found.
-2024-12-01 23:37:29 : Info : SERVER : Initialized
-2024-12-01 23:37:31 : Info : SERVER : Server started on port [80]
-2024-12-01 23:39:43 : Error : SERVER : Cant access internet connection
-2024-12-01 23:46:17 : Error : SERVER : Cant access internet connection
-2024-12-01 23:56:43 : Error : SERVER : Cant access internet connection
-2024-12-01 23:58:59 : Error : SERVER : Cant access internet connection

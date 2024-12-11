@@ -33,6 +33,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                 }
             }, _cancellationTokenSource.Token);
             
+            _stateMachine.SendStatus("Роздача карт");
         }
 
         protected override void OnTick()
@@ -54,6 +55,8 @@ namespace Trink_RiptideServer.Library.StateMachine
 
         private async Task Deal()
         {
+            await Task.Delay((int)Config.DebugDelay);
+            
             _stateMachine.DealerIndex = GetDealer();
             _stateMachine.PlaySeats = GetDealList();
             

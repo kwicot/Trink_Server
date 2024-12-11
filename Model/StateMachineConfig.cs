@@ -7,5 +7,7 @@
         public float TurnDelay = 2f * 1000;
         public float TurnWait = 20f * 1000;
         public float EndDelay = 2f * 1000;
+
+        public float DebugDelay = 2f * 1000;
     }
 }

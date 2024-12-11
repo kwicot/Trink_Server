@@ -99,7 +99,10 @@ namespace Server.Core.Rooms
             var seat = SeatOfPlayer(clientData);
 
             if (seat != null)
+            {
+                StateMachine.OnPlayerRemove(seat.Index);
                 await seat.RemovePlayer();
+            }
 
             RoomInfo.Players.Remove(userData);
             clientData.CurrentRoom = null;
@@ -123,6 +126,9 @@ namespace Server.Core.Rooms
         {
             foreach (var seat in Seats)
                 seat.SendData(clientData.ClientID);
+            
+            SendRoomData();
+            StateMachine.SendData();
         }
         public void SendRoomData()
         {

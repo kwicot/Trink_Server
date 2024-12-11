@@ -125,19 +125,28 @@ namespace Server.Core.Rooms
 
         public void Return(int value)
         {
+            SeatData.Balance += value;
+            
             RoomController.SendToAll(CreateMessage(ServerToClientId.onReturn)
                 .AddInt(value));
+            
+            SendData();
         }
 
         public void Win(int value)
         {
+            SeatData.Balance += value;
+            
             RoomController.SendToAll(CreateMessage(ServerToClientId.onWin)
                 .AddInt(value));
+            
+            SendData();
         }
 
         public void EndGame()
         {
             RoomController.SendToAll(CreateMessage(ServerToClientId.onEndGame));
+            SendData();
         }
         
         

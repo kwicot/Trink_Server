@@ -9,23 +9,28 @@ namespace WindowsFormsApp1
         {
             InitializeComponent();
 
-            Logger.OnLogsChanged += UpdateLogs;
-            UpdateLogs();
+            Logger.OnLogAdded += OnLogAdded;
+            Initialize();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            Logger.OnLogsChanged -= UpdateLogs;
+            Logger.OnLogAdded -= OnLogAdded;
         }
 
-        private void UpdateLogs()
+        void Initialize()
         {
             listBox_logs.Items.Clear();
-
+            
             foreach (var logData in Logger.Logs.ToList())
             {
                 listBox_logs.Items.Add(logData);
             }
+        }
+
+        private void OnLogAdded(string newLog)
+        {
+            listBox_logs.Items.Add(newLog);
         }
     }
 }

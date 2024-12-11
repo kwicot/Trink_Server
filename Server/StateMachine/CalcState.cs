@@ -30,6 +30,8 @@ namespace Trink_RiptideServer.Library.StateMachine
                     Logger.LogError(Tag,$"Exception : {ex}");
                 }
             }, _cancellationTokenSource.Token);
+            
+            _stateMachine.SendStatus("Підрахунок");
         }
         
         protected override void OnTick()
@@ -50,6 +52,8 @@ namespace Trink_RiptideServer.Library.StateMachine
         
         async Task CalcScores()
         {
+            await Task.Delay((int)Config.DebugDelay);
+            
             if (_stateMachine.InGameSeats > 1)
             {
                 await Task.Delay(2000);

@@ -11,7 +11,7 @@ namespace WindowsFormsApp1
         public static List<LogData> Logs { get; private set; }
         public static bool IsDebug { get; set; }
         
-        public static Action OnLogsChanged;
+        public static Action<string> OnLogAdded;
 
         private static bool _initialized;
         
@@ -51,7 +51,7 @@ namespace WindowsFormsApp1
             Logs.Add(logData);
             WriteToFile(logData);
             
-            OnLogsChanged?.Invoke();
+            OnLogAdded?.Invoke(logData.ToString());
             
             if(IsDebug)
                 Console.WriteLine(logData);
@@ -73,7 +73,7 @@ namespace WindowsFormsApp1
             Logs.Add(logData);
             WriteToFile(logData);
             
-            OnLogsChanged?.Invoke();
+            OnLogAdded?.Invoke(logData.ToString());
             
             if(IsDebug)
                 Console.WriteLine(logData);
@@ -96,7 +96,7 @@ namespace WindowsFormsApp1
             
             WriteToFile(logData);
             
-            OnLogsChanged?.Invoke();
+            OnLogAdded?.Invoke(logData.ToString());
             
             if(IsDebug)
                 Console.WriteLine(logData);
@@ -119,7 +119,7 @@ namespace WindowsFormsApp1
 
             WriteToFile(logData);
             
-            OnLogsChanged?.Invoke();
+            OnLogAdded?.Invoke(logData.ToString());
             
             if(IsDebug)
                 Console.WriteLine(logData);

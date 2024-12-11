@@ -26,6 +26,8 @@ namespace Trink_RiptideServer.Library.StateMachine
                     Logger.LogError(Tag,$"Exception: {ex}" );
                 }
             }, _cancellationTokenSource.Token);
+            
+            _stateMachine.SendStatus("Закінчення партії");
         }
 
         protected override void OnTick()
@@ -45,6 +47,10 @@ namespace Trink_RiptideServer.Library.StateMachine
 
         async Task Wait()
         {
+            _stateMachine.SendData();
+            
+            await Task.Delay((int)Config.DebugDelay);
+            
             foreach (var seat in _stateMachine.RoomController.Seats)
             {
                 seat.EndGame();

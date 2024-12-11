@@ -5,6 +5,7 @@ using Model;
 using Riptide;
 using Server.Core.Rooms;
 using Trink_RiptideServer.Library.Cards;
+using WindowsFormsApp1;
 
 namespace Trink_RiptideServer.Library.StateMachine
 {
@@ -31,8 +32,9 @@ namespace Trink_RiptideServer.Library.StateMachine
 
         public int LapTurns = 0;
         private int _tablePercentSum;
-        
-        
+
+
+        public static string Tag => "State_machine";
         public bool IsHideTurn { get; set; }
         public int Bet { get; set; }
         public int DealerIndex { get; set; } = -1;
@@ -43,7 +45,10 @@ namespace Trink_RiptideServer.Library.StateMachine
         public bool PlayerCheckedCards { get; set; }
         public CardsHolder CardsHolder => cardsHolder;
 
-        public int Balance => BetsData.TotalBank - _tablePercentSum;
+        private string _status;
+        public bool DealEnd = false;
+
+        public int Balance => BetsData.TotalBank;
 
         public bool IsReady
         {
@@ -124,15 +129,26 @@ namespace Trink_RiptideServer.Library.StateMachine
 
         public void OnSeatTurn(int seatIndex, int value)
         {
+            Logger.LogInfo(Tag, "OnSeatTurn");
+            
             if (_currentState == turnState)
             {
                 turnState.OnTurn(seatIndex, value);
                 
                 RoomController.SendToAll(CreateMessage(ServerToClientId.seatTurn)
                     .AddInt(seatIndex)
-                    .AddInt(value));
+                    .AddInt(value)
+                    .AddInt(BetsData.Bets[seatIndex]));
                 
                 SendData();
+            }
+        }
+
+        public void OnPlayerRemove(int seatIndex)
+        {
+            if (_currentState == turnState)
+            {
+                turnState.OnPlayerRemove(seatIndex);
             }
         }
         
@@ -164,7 +180,9 @@ namespace Trink_RiptideServer.Library.StateMachine
             LapBets.Clear();
             PlaySeats.Clear();
             DealerIndex = -1;
+            DealEnd = false;
             IsHideTurn = true;
+            LapTurns = 0;
         
             _tablePercentSum = 0;
         
@@ -209,8 +227,18 @@ namespace Trink_RiptideServer.Library.StateMachine
             message.AddBetsData(BetsData);
             message.AddInts(PlaySeats.ToArray());
             message.AddInt(Balance);
+            message.AddBool(IsHideTurn);
+            message.AddBool(DealEnd); 
 
             RoomController.SendToAll(message);
+            SendStatus(_status);
+        }
+
+        public void SendStatus(string status)
+        {
+            _status = status;
+            RoomController.SendToAll(CreateMessage(ServerToClientId.updateRoomStatus)
+                .AddString(_status));
         }
         
 
