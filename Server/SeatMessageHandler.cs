@@ -66,7 +66,8 @@ namespace WindowsFormsApp1
             {
                 if (clientData.CurrentRoom != null)
                 {
-                    clientData.CurrentRoom.StateMachine.OnSeatCheckCards();
+                    int seatIndex = message.GetInt();
+                    clientData.CurrentRoom.StateMachine.OnSeatCheckCards(seatIndex);
                 }
                 else 
                     Logger.LogInfo(Tag, $"Turn from [{fromClientId}] denied. Not in a room");

@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Riptide.Utils;
 using Server;
+using Server.Core.Rooms;
 using WindowsFormsApp1;
 using LogType = Riptide.Utils.LogType;
 
@@ -13,10 +14,12 @@ namespace Trink_RiptideServer.Library.StateMachine
     {
         private Task _task;
         private CancellationTokenSource _cancellationTokenSource;
+        private bool percentTaked = false;
         protected override void OnEnter()
         {
             Tag = $"{_stateMachine.RoomController.Tag}_State_Calc";
             Logger.LogInfo(Tag, "Enter");
+            percentTaked = false;
             
             _cancellationTokenSource = new CancellationTokenSource();
             _task = Task.Run(() => 
@@ -57,11 +60,15 @@ namespace Trink_RiptideServer.Library.StateMachine
             if (_stateMachine.InGameSeats > 1)
             {
                 await Task.Delay(2000);
-                CalcReturns();
+                await CalcReturns();
+                await Task.Delay(2000);
             }
 
             //TODO calc table percent
-           // await CalcBankPercent();
+            if(!percentTaked)
+                await CalcBankPercent();
+            
+            await Task.Delay(2000);
             
             var scores = GetScores();
             var bestScores = GetBestScores(scores);
@@ -70,7 +77,15 @@ namespace Trink_RiptideServer.Library.StateMachine
                 int win = _stateMachine.Balance;
                 _stateMachine.BetsData.Bets.Clear();
 
-                _stateMachine.RoomController.Seats[_stateMachine.DealerIndex].Win(win);
+                int index = _stateMachine.FirstInGameSeatIndex;
+                if (index == -1)
+                {
+                    _stateMachine.SetState<EndState>();
+                    return;
+                }
+                _stateMachine.RoomController.Seats[index].Win(win);
+                
+                await Task.Delay(2000);
 
                 _stateMachine.SetState<EndState>();
             }
@@ -88,7 +103,14 @@ namespace Trink_RiptideServer.Library.StateMachine
                 int win = _stateMachine.Balance;
                 _stateMachine.BetsData.Bets.Clear();
 
+                var seat = _stateMachine.RoomController.Seats[_stateMachine.DealerIndex];
+                _stateMachine.SendStatus($"Гравець {seat.UserData.UserProfile.NickName} виграв {win}");
+                
                 _stateMachine.RoomController.Seats[_stateMachine.DealerIndex].Win(win);
+                
+                Logger.LogInfo(Tag, $"Only 1 win [{_stateMachine.DealerIndex}] Dealer");
+                await Task.Delay(2000);
+
 
                 _stateMachine.SetState<EndState>();
             }
@@ -102,12 +124,13 @@ namespace Trink_RiptideServer.Library.StateMachine
                 if (playerMaxWin >= _stateMachine.Balance || _stateMachine.PlaySeats.Count == 1) // All win
                 {
                     LogInfo("All win");
-                   
+                    Logger.LogInfo(Tag, $"Only 1 win [{bestScores[0]}] All win");
                     //playerData.Balance += win;
                     foreach (var score in scores)
                     {
                         int index = score.Key;
-                        _stateMachine.RoomController.Seats[index].ShowCardsToAll();
+                        if(_stateMachine.LapBets.TryGetValue(index, out lastTurn) && lastTurn != TurnType.Pass)
+                            _stateMachine.RoomController.Seats[index].ShowCardsToAll();
                     }
                     
                     //_stateMachine.InfoText.text = $"[{bestScores[0]}] Виграв {win}";
@@ -116,9 +139,11 @@ namespace Trink_RiptideServer.Library.StateMachine
                     int win = _stateMachine.Balance;
                     _stateMachine.BetsData.Bets.Clear();
                     
-                    _stateMachine.RoomController.Seats[bestScores[0]].Win(win);
+                    var seat = _stateMachine.RoomController.Seats[bestScores[0]];
+                    _stateMachine.SendStatus($"Гравець {seat.UserData.UserProfile.NickName} виграв {win}");
                     
-                    await Task.Delay(3000);
+                    _stateMachine.RoomController.Seats[bestScores[0]].Win(win);
+                    await Task.Delay(2000);
 
                     _stateMachine.SetState<EndState>();
                 }
@@ -126,7 +151,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                 {
                     LogInfo($"Win part [{playerMaxWin}]");
                     
-                    
+                    Logger.LogInfo(Tag, $"Part win [{bestScores[0]}]");
                     //_stateMachine.Seats[bestScores[1]].ShowCardsToOther();
                     _stateMachine.RoomController.Seats[bestScores[0]].ShowCardsToAll();
 
@@ -136,17 +161,20 @@ namespace Trink_RiptideServer.Library.StateMachine
                     _stateMachine.BetsData.Bets[bestScores[0]] = 0;
                     _stateMachine.PlaySeats.Remove(bestScores[0]);
                     
+                    var seat = _stateMachine.RoomController.Seats[bestScores[0]];
+                    _stateMachine.SendStatus($"Гравець {seat.UserData.UserProfile.NickName} виграв {playerMaxWin}");
+                    
                     _stateMachine.RoomController.Seats[bestScores[0]].Win(playerMaxWin);
+                    await Task.Delay(2000);
 
                     //_stateMachine.InfoText.text = $"[{bestScores[0]}] Виграв {playerData}";
-                    await Task.Delay(3000);
                     
                     _task = Task.Run(CalcScores, _cancellationTokenSource.Token);
                 }
             }
         }
 
-        void CalcReturns()
+        async Task CalcReturns()
         {
             List<int> bets = new List<int>();
             for (int i = 0; i < _stateMachine.PlaySeats.Count; i++)
@@ -163,6 +191,11 @@ namespace Trink_RiptideServer.Library.StateMachine
                 int returnSeat = GetSeatWithBet(maxBet);
                 
                 _stateMachine.BetsData.Bets[returnSeat] -= returnValue;
+                
+                _stateMachine.SendStatus($"Повернення {returnValue} гравцю {_stateMachine.RoomController.Seats[returnSeat].UserData.UserProfile.NickName}");
+                _stateMachine.SendData();
+
+                await Task.Delay(1000);
                 _stateMachine.RoomController.Seats[returnSeat].Return(returnValue);
             }
         }
@@ -180,11 +213,30 @@ namespace Trink_RiptideServer.Library.StateMachine
 
         async Task CalcBankPercent()
         {
-            int percent = 3;
-            var sum = Math.Ceiling(_stateMachine.Balance * (percent / 100.0));
+            int percent = Program.Config.TablePercent;
+            int minBalance = Program.Config.MinBalanceForCommission;
+
+
+            int bets = 0;
+            foreach (var dataBet in _stateMachine.BetsData.Bets)
+            {
+                if (dataBet.Value > 2)
+                    bets++;
+            }
             
-            //_stateMachine.RoomController.OnTakeTablePercent((int)sum);
-            await Task.Delay(1000);
+            
+            if (_stateMachine.BetsData.TotalBank >= minBalance && bets > 1)
+            {
+                var sum = Math.Ceiling(_stateMachine.Balance * (percent / 100.0));
+
+                _stateMachine.SendStatus($"Коммісія столу: [{percent}] Сумма: [{sum}]");
+                _stateMachine.TakePercent((int)sum);
+                _stateMachine.SendData();
+                
+                await Task.Delay(1000);
+            }
+
+            percentTaked = true;
         }
 
         async void CalcWins(List<int> winsIndexes)
@@ -195,8 +247,12 @@ namespace Trink_RiptideServer.Library.StateMachine
 
             foreach (var score in winsIndexes)
             {
+                var seat = _stateMachine.RoomController.Seats[score];
+                _stateMachine.SendStatus($"Гравець {seat.UserData.UserProfile.NickName} виграв {win}");
                 _stateMachine.RoomController.Seats[score].ShowCardsToAll();
                 _stateMachine.RoomController.Seats[score].Win(win);
+
+                await Task.Delay(2000);
             }
                     
             await Task.Delay(3000);
@@ -214,7 +270,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                 int seatIndex = _stateMachine.PlaySeats[i];
                 if (_stateMachine.LapBets.TryGetValue(seatIndex, out var turn) && turn != TurnType.Pass)
                 {
-                    Log($"Add {seatIndex} to win list");
+                    Log($"Add {seatIndex} to win list. Last tun {_stateMachine.LapBets[seatIndex]}");
                     var seat = _stateMachine.RoomController.Seats[seatIndex];
                     scoresMap.Add(seatIndex, seat.CardsSum);
                 }

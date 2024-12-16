@@ -33,6 +33,8 @@ namespace Server.Core
             _riptideServer.ClientConnected += ClientManager.OnClientConnected;
             _riptideServer.ClientDisconnected += ClientManager.OnClientDisconnected;
             
+            _riptideServer.TimeoutTime = 5000;
+            
             Logger.LogInfo(Tag, "Initialized");
         }
 

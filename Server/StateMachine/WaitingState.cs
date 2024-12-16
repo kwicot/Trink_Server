@@ -18,7 +18,7 @@ namespace Trink_RiptideServer.Library.StateMachine
             Logger.LogInfo(Tag, "Enter");
             
             _cancellationTokenSource = new CancellationTokenSource();
-            _stateMachine.SendStatus("Очікування гравців");
+            _stateMachine.SendStatus("Очікування початку");
 
             
             _task = Task.Run(() => 

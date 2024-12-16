@@ -20,6 +20,21 @@ namespace Server.Core.Rooms
 
         public static RoomSettingPreset[] RoomSettingPresets { get; private set; }
 
+
+        public static bool IsWaitingReturn(string firebaseId, out RoomController waitingRoom)
+        {
+            waitingRoom = null;
+            foreach (var roomController in _roomsMap.Values)
+            {
+                if (roomController.IsWaitingPlayer(firebaseId))
+                {
+                    waitingRoom = roomController;
+                    return true;
+                }
+            }
+
+            return false;
+        }
         public static async Task Initiailize()
         {
             _roomsMap = new Dictionary<string, RoomController>();
@@ -40,10 +55,10 @@ namespace Server.Core.Rooms
             if (ClientManager.List.TryGetValue(fromClientId, out ClientData clientData))
             {
                 var roomSettings = message.GetRoomSettings();
-                OnRequestCreateRoom(clientData, roomSettings);
+                OnRequestCreateRoom(clientData, roomSettings, message);
             }
         }
-        static void OnRequestCreateRoom(ClientData clientData, RoomSettings settings)
+        static void OnRequestCreateRoom(ClientData clientData, RoomSettings settings, Message message)
         {
             Logger.LogInfo(Tag, $"Client [{clientData.ClientID}] request create room");
             if (clientData.CurrentRoom != null) // Already in room
@@ -74,7 +89,7 @@ namespace Server.Core.Rooms
                 
             Logger.LogInfo(Tag, $"Client [{clientData.ClientID}] [{clientData.FirebaseId}] Created new room with name [{room.RoomInfo.RoomSettings.RoomName}]");
 
-            OnRequestJoinRoom(clientData, settings.RoomName);
+            OnRequestJoinRoom(clientData, settings.RoomName, settings.Password);
         }
         
         
@@ -85,65 +100,78 @@ namespace Server.Core.Rooms
             if (ClientManager.List.TryGetValue(fromClientId, out ClientData clientData))
             {
                 string roomName = message.GetString();
-                OnRequestJoinRoom(clientData, roomName);
+                OnRequestJoinRoom(clientData, roomName, message.GetString());
             }
         }
-        static async void OnRequestJoinRoom(ClientData clientData, string roomName)
+
+        static async void OnRequestJoinRoom(ClientData clientData, string roomName, string pass)
         {
             Logger.LogInfo(Tag, $"Client [{clientData.ClientID}] request join room [{roomName}]");
-                if (clientData.CurrentRoom != null) // Already in room
-                {
-                    SendMessage(CreateMessage(ServerToClientId.joinRoomFail)
-                            .AddInt((int)ErrorType.IN_ROOM)
-                        , clientData.ClientID);
-                    
-                    Logger.LogInfo(Tag, $"Request denied from client [{clientData.ClientID}] via [IN_ROOM]");
-                    return;
-                }
-                if (!_roomsMap.ContainsKey(roomName))
-                {
-                    SendMessage(CreateMessage(ServerToClientId.joinRoomFail)
-                            .AddInt((int)ErrorType.DOES_NOT_EXIST)
-                        , clientData.ClientID);
-                    
-                    Logger.LogInfo(Tag, $"Request denied from client [{clientData.ClientID}] via [DOES_NOT_EXIST]. Rooms count {_roomsMap.Count}");
-                    return;
-                }
+            if (clientData.CurrentRoom != null) // Already in room
+            {
+                SendMessage(CreateMessage(ServerToClientId.joinRoomFail)
+                        .AddInt((int)ErrorType.IN_ROOM)
+                    , clientData.ClientID);
 
-                if (_roomsMap.TryGetValue(roomName, out RoomController roomController))
+                Logger.LogInfo(Tag, $"Request denied from client [{clientData.ClientID}] via [IN_ROOM]");
+                return;
+            }
+
+            if (!_roomsMap.ContainsKey(roomName))
+            {
+                SendMessage(CreateMessage(ServerToClientId.joinRoomFail)
+                        .AddInt((int)ErrorType.DOES_NOT_EXIST)
+                    , clientData.ClientID);
+
+                Logger.LogInfo(Tag,
+                    $"Request denied from client [{clientData.ClientID}] via [DOES_NOT_EXIST]. Rooms count {_roomsMap.Count}");
+                return;
+            }
+
+            if (_roomsMap.TryGetValue(roomName, out RoomController roomController))
+            {
+                if (roomController.RoomInfo.PlayersCount >= roomController.RoomInfo.RoomSettings.MaxPlayers)
                 {
-                    if (roomController.RoomInfo.PlayersCount >= roomController.RoomInfo.RoomSettings.MaxPlayers)
-                    {
-                        SendMessage(CreateMessage(ServerToClientId.joinRoomFail)
+                    SendMessage(CreateMessage(ServerToClientId.joinRoomFail)
                             .AddInt((int)ErrorType.NO_FREE_SPACE)
-                            , clientData.ClientID);
-                        
-                        Logger.LogInfo(Tag, $"Request denied from client [{clientData.ClientID}] via [NO_FREE_SPACE]");
-                        return;
-                    }
-                    
-                    else if (!await roomController.AddClient(clientData))
-                    {
-                        SendMessage(CreateMessage(ServerToClientId.joinRoomFail)
-                                .AddInt((int)ErrorType.BLOCKED)
-                            , clientData.ClientID);
-                        
-                        Logger.LogInfo(Tag, $"Request denied from client [{clientData.ClientID}] via [BLOCKED]]");
-                        return;
-                    }
-                    
-                    SendMessage(CreateMessage(ServerToClientId.joinedRoom)
-                        .AddRoomInfo(roomController.RoomInfo)
                         , clientData.ClientID);
 
-                    OnRoomStateChanged(roomController);
-                    
-                    Logger.LogInfo(Tag, $"Client [{clientData.ClientID}] [{clientData.FirebaseId}] joined to room [{roomController.RoomInfo.RoomSettings.RoomName}]");
+                    Logger.LogInfo(Tag, $"Request denied from client [{clientData.ClientID}] via [NO_FREE_SPACE]");
+                    return;
                 }
+                else if (roomController.RoomInfo.RoomSettings.Type == RoomType.Custom &&
+                         pass != roomController.RoomInfo.RoomSettings.Password)
+                {
+                    SendMessage(CreateMessage(ServerToClientId.joinRoomFail)
+                            .AddInt((int)ErrorType.PASSWORD_INCORECT)
+                        , clientData.ClientID);
+
+                    Logger.LogInfo(Tag, $"Request denied from client [{clientData.ClientID}] via [PASSWORD_INCORECT]");
+                    return;
+                }
+                else if (!await roomController.AddClient(clientData))
+                {
+                    SendMessage(CreateMessage(ServerToClientId.joinRoomFail)
+                            .AddInt((int)ErrorType.BLOCKED)
+                        , clientData.ClientID);
+
+                    Logger.LogInfo(Tag, $"Request denied from client [{clientData.ClientID}] via [BLOCKED]]");
+                    return;
+                }
+
+                SendMessage(CreateMessage(ServerToClientId.joinedRoom)
+                        .AddRoomInfo(roomController.RoomInfo)
+                    , clientData.ClientID);
+
+                OnRoomStateChanged(roomController);
+
+                Logger.LogInfo(Tag,
+                    $"Client [{clientData.ClientID}] [{clientData.FirebaseId}] joined to room [{roomController.RoomInfo.RoomSettings.RoomName}]");
+            }
         }
-        
-        
-        
+
+
+
         [MessageHandler((ushort)ClientToServerId.leftRoom)]
         public static async void MessageHandler_LeftRoom(ushort fromClientId, Message message)
         {
@@ -152,7 +180,7 @@ namespace Server.Core.Rooms
                 OnRequestLeftRoom(clientData);
             }
         }
-        static void OnRequestLeftRoom(ClientData clientData)
+        static async void OnRequestLeftRoom(ClientData clientData)
         {
             if (clientData.CurrentRoom == null) 
             {
@@ -166,7 +194,7 @@ namespace Server.Core.Rooms
 
             clientData.CurrentRoom = null;
                 
-            room.RemoveClient(clientData);
+            await room.RemoveClient(clientData, false);
                 
             SendMessage(CreateMessage(ServerToClientId.leftRoom)
                 , clientData.ClientID);

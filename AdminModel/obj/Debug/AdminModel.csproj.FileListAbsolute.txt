@@ -1,0 +1,6 @@
+H:\Trink\Sources\Server\AdminModel\bin\Debug\AdminModel.dll
+H:\Trink\Sources\Server\AdminModel\bin\Debug\AdminModel.pdb
+H:\Trink\Sources\Server\AdminModel\obj\Debug\AdminModel.csproj.AssemblyReference.cache
+H:\Trink\Sources\Server\AdminModel\obj\Debug\AdminModel.csproj.CoreCompileInputs.cache
+H:\Trink\Sources\Server\AdminModel\obj\Debug\AdminModel.dll
+H:\Trink\Sources\Server\AdminModel\obj\Debug\AdminModel.pdb

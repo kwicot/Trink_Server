@@ -117,6 +117,7 @@
         <Reference Include="System.Xml"/>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="AdminController.cs" />
         <Compile Include="ClientData.cs" />
         <Compile Include="ClientManager.cs" />
         <Compile Include="Config.cs" />
@@ -189,6 +190,10 @@
         <None Include="App.config" />
     </ItemGroup>
     <ItemGroup>
+      <ProjectReference Include="..\AdminModel\AdminModel.csproj">
+        <Project>{ca0c3b25-2a9a-45b7-b059-87dd4c021c17}</Project>
+        <Name>AdminModel</Name>
+      </ProjectReference>
       <ProjectReference Include="..\Model\Model.csproj">
         <Project>{025131c4-bd1a-463a-8bf8-50e830c104eb}</Project>
         <Name>Model</Name>

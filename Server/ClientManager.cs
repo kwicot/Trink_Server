@@ -43,7 +43,7 @@ namespace Server.Core
             if (List.TryGetValue(e.Client.Id, out ClientData clientData))
             {
                 if (clientData.CurrentRoom != null)
-                    await clientData.CurrentRoom.RemoveClient(clientData);
+                    await clientData.CurrentRoom.RemoveClient(clientData, true);
                 
                 if(clientData.IsConnectedToLobby)
                     Master.DisconnectClient(clientData);
@@ -64,12 +64,17 @@ namespace Server.Core
                 userData.UserProfile = userProfile;
                 await UsersDatabase.UpdateUserData(clientData.FirebaseId, userData);
                 
+                Logger.LogInfo(Tag, $"Success update user profile from [{fromClientId}] new NickName: {userProfile.NickName}");
+                
                 SendMessage(CreateMessage(ServerToClientId.updateUserProfileResult)
                     .AddBool(true)
                     ,fromClientId);
             }
             else
             {
+                
+                Logger.LogInfo(Tag, $"Success update user profile from [{fromClientId}]");
+
                 SendMessage(CreateMessage(ServerToClientId.updateUserProfileResult)
                     .AddBool(false)
                     .AddInt((int)ErrorType.NEED_LOGIN)

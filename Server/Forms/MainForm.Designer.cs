@@ -149,6 +149,7 @@
             this.Controls.Add(this.textBox_maxConnection);
             this.Name = "MainForm";
             this.Text = "Server";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.ResumeLayout(false);

@@ -12,6 +12,8 @@ namespace Trink_RiptideServer.Library.StateMachine
         protected override void OnEnter()
         {
             Tag = $"{_stateMachine.RoomController.Tag}_State_EndGame";
+            _stateMachine.BetsData.TableCommission = 0;
+            _stateMachine.BetsData.Bets.Clear();
             Logger.LogInfo(Tag, "Enter");
             
             _cancellationTokenSource = new CancellationTokenSource();
@@ -49,11 +51,10 @@ namespace Trink_RiptideServer.Library.StateMachine
         {
             _stateMachine.SendData();
             
-            await Task.Delay((int)Config.DebugDelay);
-            
             foreach (var seat in _stateMachine.RoomController.Seats)
             {
                 seat.EndGame();
+                seat.ClearOut();
             }
 
             await Task.Delay((int)(Program.Config.StateMachineConfig.EndDelay));

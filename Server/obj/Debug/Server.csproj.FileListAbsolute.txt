@@ -124,3 +124,5 @@ H:\Trink\Sources\Server\Server\obj\Debug\Server.csproj.CoreCompileInputs.cache
 H:\Trink\Sources\Server\Server\obj\Debug\Server.csproj.Up2Date
 H:\Trink\Sources\Server\Server\obj\Debug\Server.exe
 H:\Trink\Sources\Server\Server\obj\Debug\Server.pdb
+H:\Trink\Sources\Server\Server\bin\Debug\AdminModel.dll
+H:\Trink\Sources\Server\Server\bin\Debug\AdminModel.pdb

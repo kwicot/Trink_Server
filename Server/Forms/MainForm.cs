@@ -9,7 +9,15 @@ namespace WindowsFormsApp1
         {
             InitializeComponent();
 
+            textBox_maxConnection.Text = Program.Config.PlayersCount.ToString();
+            textBox_port.Text = Program.Config.Port.ToString();
+            
             Server.Core.Server.OnStatusChanged += OnServerStatusChange;
+
+            if (Program.Config.StartOnLaunch)
+            {
+                button_start_Click(this, EventArgs.Empty);
+            }
         }
 
         private void OnServerStatusChange()
@@ -24,6 +32,11 @@ namespace WindowsFormsApp1
 
             ushort port = System.Convert.ToUInt16(portText);
             ushort maxConnections = System.Convert.ToUInt16(maxConnectionsText);
+
+            Program.Config.PlayersCount = maxConnections;
+            Program.Config.Port = port;
+            
+            Program.SaveConfig();
             
             await Server.Core.Server.Start(port, maxConnections);
         }
@@ -38,6 +51,11 @@ namespace WindowsFormsApp1
             LoggingForm loggingForm = new LoggingForm();
             
             loggingForm.Show();
+        }
+
+        private async void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            await Server.Core.Server.Stop();
         }
     }
 }

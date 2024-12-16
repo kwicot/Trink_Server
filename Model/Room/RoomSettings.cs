@@ -20,6 +20,7 @@ namespace WindowsFormsApp1.Room
         public int MinBalance { get; set; }
         public int MaxBalance { get; set; }
         public int StartBet { get; set; }
+        public string Password { get; set; }
         
 
         public Message GetMessageData(Message message)
@@ -34,6 +35,7 @@ namespace WindowsFormsApp1.Room
             message.AddInt(MinBalance);
             message.AddInt(MaxBalance);
             message.AddInt(StartBet);
+            message.AddString(Password);
             
             return message;
         }
@@ -52,6 +54,7 @@ namespace WindowsFormsApp1.Room
             int minBalance = message.GetInt();
             int maxBalance = message.GetInt();
             int startBet = message.GetInt();
+            string password = message.GetString();
 
             return new RoomSettings()
             {
@@ -65,6 +68,7 @@ namespace WindowsFormsApp1.Room
                 MinBalance = minBalance,
                 MaxBalance = maxBalance,
                 StartBet = startBet,
+                Password = password
             };
         }
     }

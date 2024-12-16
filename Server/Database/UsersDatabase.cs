@@ -34,23 +34,26 @@ namespace WindowsFormsApp1
         }
 
 
-        public static async Task<UserData> GetUserData(string firebaseId)
+        public static async Task<UserData> GetUserData(string firebaseId, bool createNewUser = true)
         {
-            if(_usersMap.ContainsKey(firebaseId))
+            if (_usersMap.ContainsKey(firebaseId))
                 return _usersMap[firebaseId];
             
             var data = await FirebaseDatabase.GetDataAsync<UserData>(Constants.FirebaseDatabaseUsersPath + firebaseId);
-        
-            if (data == null)
+            Logger.LogInfo(Tag,$"Get data from FirebaseDatabase {data != null}");
+
+            if (data == null && createNewUser)
             {
+                Logger.LogInfo(Tag, "Create new user");
                 data = CreateNewUserData(firebaseId);
-                
+
                 await FirebaseDatabase.WriteDataAsync(Constants.FirebaseDatabaseUsersPath + firebaseId, data);
+
+                _usersMap.Add(firebaseId, data);
+
+                return data;
             }
-            
-            _usersMap.Add(firebaseId, data);
-            
-            return _usersMap[firebaseId];
+            return data;
         }
 
         static UserData CreateNewUserData(string firebaseId)
@@ -69,14 +72,12 @@ namespace WindowsFormsApp1
 
         public static async Task UpdateUserData(string firebaseId, UserData userData)
         {
+            _usersMap[firebaseId] = userData;
             SaveUsers();
-            
-            
-            
-            //await FirebaseDatabase.WriteDataAsync(Constants.FirebaseDatabaseUsersPath + firebaseId, userData);
+            await FirebaseDatabase.WriteDataAsync(Constants.FirebaseDatabaseUsersPath + firebaseId, userData);
         }
 
-        public static async Task UpdateUserData(UserData userData) => UpdateUserData(userData.FirebaseId, userData);
+        public static async Task UpdateUserData(UserData userData) => await UpdateUserData(userData.FirebaseId, userData);
 
 
         [MessageHandler((ushort)ClientToServerId.getUserData)]
@@ -85,7 +86,7 @@ namespace WindowsFormsApp1
             string requestId = message.GetString();
             string firebaseId = message.GetString();
             
-            var userData = await GetUserData(firebaseId);
+            var userData = await GetUserData(firebaseId, false);
 
             if (userData != null)
             {

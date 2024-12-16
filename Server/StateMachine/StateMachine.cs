@@ -31,8 +31,6 @@ namespace Trink_RiptideServer.Library.StateMachine
         private Dictionary<Type, GameState> _statesMap;
 
         public int LapTurns = 0;
-        private int _tablePercentSum;
-
 
         public static string Tag => "State_machine";
         public bool IsHideTurn { get; set; }
@@ -42,6 +40,7 @@ namespace Trink_RiptideServer.Library.StateMachine
         public BetsData BetsData { get; set; } = new BetsData();
         public Dictionary<int, TurnType> LapBets { get; set; } = new();
         public RoomController RoomController { get; }
+        public List<string> Actions { get; set; }
         public bool PlayerCheckedCards { get; set; }
         public CardsHolder CardsHolder => cardsHolder;
 
@@ -49,6 +48,7 @@ namespace Trink_RiptideServer.Library.StateMachine
         public bool DealEnd = false;
 
         public int Balance => BetsData.TotalBank;
+        public bool CanTopUpBalance => _currentState == waitingState || _currentState == endState;
 
         public bool IsReady
         {
@@ -87,6 +87,27 @@ namespace Trink_RiptideServer.Library.StateMachine
                 return value;
             }
         }
+        public int FirstInGameSeatIndex
+        {
+            get
+            {
+                foreach (var playSeat in PlaySeats)
+                {
+                    if (LapBets.TryGetValue(playSeat, out var turn))
+                    {
+                        if (turn != TurnType.Pass)
+                            return playSeat;
+                    }
+                    else
+                    {
+                        return playSeat;
+                    }
+                }
+                
+                //Debug.Log($"In game seats {value}");
+                return -1;
+            }
+        }
 
         public int GetMaxBet()
         {
@@ -118,6 +139,7 @@ namespace Trink_RiptideServer.Library.StateMachine
         void SetUp()
         {
             cardsHolder = new CardsHolder();
+            Actions = new List<string>();
             
             SetState(waitingState);
         }
@@ -139,6 +161,13 @@ namespace Trink_RiptideServer.Library.StateMachine
                     .AddInt(seatIndex)
                     .AddInt(value)
                     .AddInt(BetsData.Bets[seatIndex]));
+
+                if (!IsHideTurn || PlayerCheckedCards)
+                {
+                    IsHideTurn = false;
+                    foreach (var playSeat in PlaySeats)
+                        RoomController.Seats[playSeat].ShowCardsLocal();
+                }
                 
                 SendData();
             }
@@ -152,10 +181,16 @@ namespace Trink_RiptideServer.Library.StateMachine
             }
         }
         
-        public void OnSeatCheckCards()
+        public void OnSeatCheckCards(int seatIndex)
         {
             if (_currentState == turnState)
             {
+                PlayerCheckedCards = true;
+            
+                SendData();
+                
+                Actions.Add($"{RoomController.Seats[seatIndex].UserData.UserProfile.NickName}: Подивився карти");
+                
                 int index = turnState.CurrentTurnSeatIndex;
                 var seat = RoomController.Seats[index];
                 if (PlaySeats.Contains(index))
@@ -172,7 +207,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                 }
             }
             
-            PlayerCheckedCards = true;
+            
         }
 
         public void NewGame()
@@ -184,52 +219,30 @@ namespace Trink_RiptideServer.Library.StateMachine
             IsHideTurn = true;
             LapTurns = 0;
         
-            _tablePercentSum = 0;
+            BetsData.TableCommission = 0;
         
             BetsData.Bets.Clear();
         
             SetState<WaitingState>();
         }
 
-        // public void TakePercent(int value)
-        // {
-        //     _tablePercentSum = value;
-        // }
-        //
+        public void TakePercent(int value)
+        {
+            BetsData.TableCommission = value;
+        }
         
-        //
-        // public void OnSeatTurn(SeatController seatController, int value)
-        // {
-        //     if (_currentState == turnState)
-        //     {
-        //         turnState.OnTurn(seatController.Index, value);
-        //     }
-        // }
-        //
-        // public void OnPlayerLeft(int seatIndex)
-        // {
-        //     if (_currentState == turnState)
-        //     {
-        //         if(turnState.CurrentTurnSeatIndex == seatIndex)
-        //             turnState.OnTurn(seatIndex, -1);
-        //         
-        //         PlaySeats.Remove(seatIndex);
-        //     }
-        //     else
-        //     {
-        //         PlaySeats.Remove(seatIndex);
-        //     }
-        // }
-
         public void SendData()
         {
             var message = CreateMessage(ServerToClientId.updateStateMachineData);
+            
             message.AddBetsData(BetsData);
-            message.AddInts(PlaySeats.ToArray());
-            message.AddInt(Balance);
             message.AddBool(IsHideTurn);
-            message.AddBool(DealEnd); 
-
+            message.AddBool(DealEnd);
+            message.AddBool(CanTopUpBalance);
+            
+            message.AddInts(PlaySeats.ToArray());
+            message.AddStrings(Actions.ToArray());
+            
             RoomController.SendToAll(message);
             SendStatus(_status);
         }
@@ -270,6 +283,7 @@ namespace Trink_RiptideServer.Library.StateMachine
 
             _currentState = state;
             _currentState.Enter();
+            SendData();
         }
 
         public T SetState<T>() where T : GameState

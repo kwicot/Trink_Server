@@ -55,8 +55,11 @@ namespace WindowsFormsApp1
             return config;
         }
         
-        static void SaveConfig(Config config)
+        public static void SaveConfig(Config config = null)
         {
+            if (config == null)
+                config = Config;
+            
             FilesHelper.Save(Constants.ConfigPath, config);
         }
     }

@@ -24,6 +24,18 @@ namespace Server.Core.Rooms
         public StateMachine StateMachine { get; private set; }
         public int Balance;
 
+        public bool IsWaitingPlayer(string firebaseId)
+        {
+            foreach (var seatController in Seats)
+            {
+                if (!seatController.IsFree && seatController.SeatData.FirebaseId == firebaseId &&
+                    seatController.SeatData.IsOut)
+                    return true;
+            }
+
+            return false;
+        }
+        
         SeatController SeatOfPlayer(ClientData clientData)
         {
             foreach (var seatController in Seats)
@@ -86,6 +98,15 @@ namespace Server.Core.Rooms
             var userData = await UsersDatabase.GetUserData(clientData.FirebaseId);
             RoomInfo.Players.Add(userData);
 
+
+            foreach (var seatController in Seats)
+            {
+                if (!seatController.IsFree && seatController.ClientData.FirebaseId == clientData.FirebaseId)
+                { 
+                    seatController.ReturnPlayer(clientData);
+                }
+            }
+
             _removeTimerEnable = false;
             clientData.CurrentRoom = this;
 
@@ -93,7 +114,7 @@ namespace Server.Core.Rooms
             return true;
         }
 
-        public async Task RemoveClient(ClientData clientData)
+        public async Task RemoveClient(ClientData clientData, bool waiting)
         {
             var userData = await UsersDatabase.GetUserData(clientData.FirebaseId);
             var seat = SeatOfPlayer(clientData);
@@ -101,7 +122,7 @@ namespace Server.Core.Rooms
             if (seat != null)
             {
                 StateMachine.OnPlayerRemove(seat.Index);
-                await seat.RemovePlayer();
+                await seat.RemovePlayer(waiting);
             }
 
             RoomInfo.Players.Remove(userData);
@@ -115,6 +136,7 @@ namespace Server.Core.Rooms
                 _removeTimerEnable = true;
             }
         }
+
 
         public void OnPlayerLoadedScene(ClientData clientData)
         {

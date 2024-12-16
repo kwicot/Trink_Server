@@ -10,6 +10,7 @@ namespace Trink_RiptideServer
     public class BetsData
     {
         public Dictionary<int, int> Bets = new();
+        public int TableCommission = 0;
         public int TotalBank
         {
             get
@@ -22,6 +23,8 @@ namespace Trink_RiptideServer
                         value += bet.Value;
                     }
                 }
+
+                value -= TableCommission;
 
                 return value;
             }
@@ -62,13 +65,15 @@ namespace Trink_RiptideServer
                 message.AddInt(bet.Value);
             }
 
+            message.AddInt(TableCommission);
+
             return message;
         }
 
         public static BetsData GetDataFromMessage(Message message)
         {
             var betsData = new BetsData();
-            betsData.Bets = new Dictionary<int, int>();
+            var bets = new Dictionary<int, int>();
             
             int count = message.GetInt();
             if (count > 0)
@@ -77,12 +82,15 @@ namespace Trink_RiptideServer
                 {
                     int key = message.GetInt();
                     int value = message.GetInt();
-                    betsData.Bets.Add(key, value);
+                    bets.Add(key, value);
                 }
             }
             
-            
-            
+            int tableCommission = message.GetInt();
+
+            betsData.Bets = bets;
+            betsData.TableCommission = tableCommission;
+
             return betsData;
         }
     }

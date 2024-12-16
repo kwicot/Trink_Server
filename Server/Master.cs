@@ -51,7 +51,18 @@ namespace Server.Core
                             .AddUserData(userData)
                             .AddRoomSettingsPresets(RoomManager.RoomSettingPresets)
                             , fromClientId);
-                        
+
+
+                        if (RoomManager.IsWaitingReturn(firebaseId, out var room))
+                        {
+                            await Task.Delay(2000);
+                           await room.AddClient(clientData);
+                           
+                           SendMessage(CreateMessage(ServerToClientId.joinedRoom)
+                                   .AddRoomInfo(room.RoomInfo)
+                               , clientData.ClientID);
+                        }
+
                         Logger.LogInfo(Tag, $"Client [{fromClientId}] [{clientData.FirebaseId}] connected");
                     }
                     else

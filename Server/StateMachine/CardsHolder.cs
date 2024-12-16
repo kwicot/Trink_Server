@@ -107,33 +107,94 @@ namespace Trink_RiptideServer.Library.Cards
             bool haveSevenSpades = false;
             int aceCount = 0;
 
+            int sevenSpadesIndex = 0;
+            int sixIndex = 0;
+            int aceIndex = 0;
+
             first = GetCard(cardIds[0]);
             second = GetCard(cardIds[1]);
             three = GetCard(cardIds[2]);
 
+            if (first.Number == CardNumber.Six)
+            {
+                sixCount++;
+                sixIndex = 0;
+            }
+            if (second.Number == CardNumber.Six) {
+                sixCount++;
+                sixIndex = 1;
+            }
+            if (three.Number == CardNumber.Six) {
+                sixCount++;
+                sixIndex = 2;
+            }
 
-            if (first.Number == CardNumber.Six) sixCount++;
-            if (second.Number == CardNumber.Six) sixCount++;
-            if (three.Number == CardNumber.Six) sixCount++;
+            if (first.IsJoker)
+            {
+                haveSevenSpades = true;
+                sevenSpadesIndex = 0;
+            }
+            if (second.IsJoker) {
+                haveSevenSpades = true;
+                sevenSpadesIndex = 1;
+            }
+            if (three.IsJoker) {
+                haveSevenSpades = true;
+                sevenSpadesIndex = 2;
+            }
 
-            if (first.IsJoker) haveSevenSpades = true;
-            if (second.IsJoker) haveSevenSpades = true;
-            if (three.IsJoker) haveSevenSpades = true;
-
-            if (first.Number == CardNumber.Ace) aceCount++;
-            if (second.Number == CardNumber.Ace) aceCount++;
-            if (three.Number == CardNumber.Ace) aceCount++;
+            if (first.Number == CardNumber.Ace)
+            {
+                aceCount++;
+                aceIndex = 0;
+            }
+            if (second.Number == CardNumber.Ace) {
+                aceCount++;
+                aceIndex = 1;
+            }
+            if (three.Number == CardNumber.Ace) {
+                aceCount++;
+                aceIndex = 2;
+            }
 
             if (sixCount == 3) return 36;
             if (sixCount == 2 & haveSevenSpades) return 36;
+            
             if (sixCount == 2) return 24;
-            if (sixCount == 1 & haveSevenSpades) return 24;
+            if (sixCount == 1 & haveSevenSpades)
+            {
+                List<int> otherCards = new List<int>() { cardIds[0], cardIds[1], cardIds[2] };
+                otherCards.Remove(sevenSpadesIndex);
+                
+                var card1 = GetCard(otherCards[0]);
+                var card2 = GetCard(otherCards[1]);
+                if (card1.Suit == card2.Suit)
+                {
+                    otherCards.Remove(sixIndex);
+                    return 24 + GetCard(otherCards[0]).Value;
+                }
+                else
+                    return 24;
+            }
 
             if (aceCount == 3) return 33;
             if (aceCount == 2 & haveSevenSpades) return 33;
             if (aceCount == 2) return 22;
-            if (aceCount == 1 & haveSevenSpades) return 22;
+            if (aceCount == 1 & haveSevenSpades)
+            {
+                List<int> otherCards = new List<int>() { cardIds[0], cardIds[1], cardIds[2] };
+                otherCards.Remove(sevenSpadesIndex);
 
+                var card1 = GetCard(otherCards[0]);
+                var card2 = GetCard(otherCards[1]);
+                if (card1.Suit == card2.Suit)
+                {
+                    otherCards.Remove(aceIndex);
+                    return 22 + GetCard(otherCards[0]).Value;
+                }
+                else
+                    return 22;
+            }
 
             if (first.Suit == second.Suit && first.Suit == three.Suit)
                 return first.Value + second.Value + three.Value;

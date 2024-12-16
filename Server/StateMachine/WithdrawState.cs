@@ -14,12 +14,12 @@ namespace Trink_RiptideServer.Library.StateMachine
             Logger.LogInfo(Tag, "Enter");
             
             _stateMachine.SendStatus("Збір вступних");
-
             
             _stateMachine.BetsData = new BetsData()
             {
                 Bets = new Dictionary<int, int>()
             };
+            _stateMachine.Actions = new List<string>();
 
             List<int> readySeats = new List<int>();
             var seats = _stateMachine.RoomController.Seats;
@@ -28,6 +28,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                 if (seats[i].IsReady && seats[i].SeatData.Balance >= RoomSettings.MinBalance)
                 {
                     seats[i].Withdraw(RoomSettings.StartBet);
+                    _stateMachine.Actions.Add($"{seats[i].UserData.UserProfile.NickName}: Оплатив вступні [{RoomSettings.MinBalance}]");
                     
                     readySeats.Add(i);
                     _stateMachine.BetsData.Bets[seats[i].Index] = RoomSettings.StartBet;

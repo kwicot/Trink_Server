@@ -1,0 +1,10 @@
+H:\Trink\Sources\Server\Admin\obj\Debug\net48\Admin.csproj.AssemblyReference.cache
+H:\Trink\Sources\Server\Admin\obj\Debug\net48\Admin.GeneratedMSBuildEditorConfig.editorconfig
+H:\Trink\Sources\Server\Admin\obj\Debug\net48\Admin.AssemblyInfoInputs.cache
+H:\Trink\Sources\Server\Admin\obj\Debug\net48\Admin.AssemblyInfo.cs
+H:\Trink\Sources\Server\Admin\obj\Debug\net48\Admin.csproj.CoreCompileInputs.cache
+H:\Trink\Sources\Server\Admin\obj\Debug\net48\Admin.sourcelink.json
+H:\Trink\Sources\Server\Admin\bin\Debug\net48\Admin.dll
+H:\Trink\Sources\Server\Admin\bin\Debug\net48\Admin.pdb
+H:\Trink\Sources\Server\Admin\obj\Debug\net48\Admin.dll
+H:\Trink\Sources\Server\Admin\obj\Debug\net48\Admin.pdb

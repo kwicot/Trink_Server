@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Kwicot.Server.ClientLibrary.Models.Enums;
 using Model;
+using Org.BouncyCastle.Crypto.Signers;
 using Riptide;
 using Server.Core.Models;
 using Trink_RiptideServer.Library.Cards;
@@ -23,10 +24,9 @@ namespace Server.Core.Rooms
 
         public int CardsSum => CardsHolder.GetCardsSum(_cards);
 
-        public bool IsOut { get; set; }
         public bool IsFree => SeatData == null;
-        public bool IsReady => !IsFree && SeatData.Balance > RoomController.RoomInfo.RoomSettings.MinBalance && !IsOut;
-
+        public bool IsReady => !IsFree && SeatData.Balance > RoomController.RoomInfo.RoomSettings.MinBalance && !SeatData.IsOut;
+        
         public async void SetPlayer(ClientData clientData, bool isRequest = false)
         {
             var userData = await UsersDatabase.GetUserData(clientData.FirebaseId);
@@ -39,6 +39,7 @@ namespace Server.Core.Rooms
             };
             ClientData = clientData;
             UserData = userData;
+            
             _cards = new int[3];
             
             SendData();
@@ -52,16 +53,39 @@ namespace Server.Core.Rooms
                 OfferToTopUpBalance();
             }
         }
-        public async Task RemovePlayer()
+
+        public void ReturnPlayer(ClientData newClientData)
+        {
+            SeatData.ClientId = newClientData.ClientID;
+            ClientData = newClientData;
+
+            SeatData.IsOut = false;
+            SendData();
+        }
+        public async Task RemovePlayer(bool waiting)
         {
             UserData.Balance += SeatData.Balance;
             await UsersDatabase.UpdateUserData(UserData);
+
+            if (RoomController.StateMachine.PlaySeats.Contains(Index) && waiting)
+            {
+                Logger.LogInfo(Tag, "Out");
+                SeatData.IsOut = true;
+            }
+            else
+            {
+                OnLeft();
+            }
             
+            SendData();
+        }
+
+        void OnLeft()
+        {
+            Logger.LogInfo(Tag, "OnLeft");
             SeatData = null;
             UserData = null;
             ClientData = null;
-            
-            SendData();
         }
         
 
@@ -97,6 +121,7 @@ namespace Server.Core.Rooms
         {
             SendMessage(CreateMessage(ServerToClientId.showCards)
                 .AddInts(_cards)
+                .AddInt(CardsSum)
                 , SeatData.ClientId);
             
             RoomController.SendToAll(CreateMessage(ServerToClientId.seatCheckCards)
@@ -106,7 +131,8 @@ namespace Server.Core.Rooms
         public void ShowCardsToAll()
         {
             RoomController.SendToAll(CreateMessage(ServerToClientId.showCards)
-                .AddInts(_cards));
+                .AddInts(_cards)
+                .AddInt(CardsSum));
         }
 
         public void Turn(bool isHideTurn, float turnTime, bool isLastTurn, int minBet)
@@ -125,6 +151,8 @@ namespace Server.Core.Rooms
 
         public void Return(int value)
         {
+            RoomController.StateMachine.Actions.Add($"{UserData.UserProfile.NickName}: Повернув [{value}]");
+
             SeatData.Balance += value;
             
             RoomController.SendToAll(CreateMessage(ServerToClientId.onReturn)
@@ -135,13 +163,16 @@ namespace Server.Core.Rooms
 
         public void Win(int value)
         {
+            RoomController.StateMachine.Actions.Add($"{UserData.UserProfile.NickName}: Виграв [{value}]");
+
             SeatData.Balance += value;
-            
+
             RoomController.SendToAll(CreateMessage(ServerToClientId.onWin)
                 .AddInt(value));
-            
+
             SendData();
         }
+        
 
         public void EndGame()
         {
@@ -168,6 +199,14 @@ namespace Server.Core.Rooms
                 message.AddSeatData(SeatData);
 
             SendMessage(message, targetClient);
+        }
+
+        public void ClearOut()
+        {
+             if(SeatData == null || SeatData.IsOut)
+                OnLeft();
+             
+             SendData();
         }
 
         #region Message
@@ -233,7 +272,7 @@ namespace Server.Core.Rooms
                             .AddInt((int)ErrorType.NOT_ENOUGH_MONEY)
                         , SeatData.ClientId);
 
-                    await RemovePlayer();
+                    await RemovePlayer(false);
                 }
                 else
                 {
@@ -244,7 +283,10 @@ namespace Server.Core.Rooms
                 }
             }
             else if (!IsFree && value <= 0)
-                await RemovePlayer();
+            {
+                if(SeatData.Balance < RoomController.RoomInfo.RoomSettings.MinBalance)
+                    await RemovePlayer(false);
+            }
         }
 
         #endregion
