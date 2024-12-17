@@ -74,7 +74,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                 {
                     if (LapBets.TryGetValue(playSeat, out var turn))
                     {
-                        if (turn != TurnType.Pass)
+                        if (turn != TurnType.Pass && !RoomController.Seats[playSeat].IsFree && !RoomController.Seats[playSeat].SeatData.IsOut)
                             value++;
                     }
                     else
@@ -151,8 +151,6 @@ namespace Trink_RiptideServer.Library.StateMachine
 
         public void OnSeatTurn(int seatIndex, int value)
         {
-            Logger.LogInfo(Tag, "OnSeatTurn");
-            
             if (_currentState == turnState)
             {
                 turnState.OnTurn(seatIndex, value);
@@ -175,6 +173,8 @@ namespace Trink_RiptideServer.Library.StateMachine
 
         public void OnPlayerRemove(int seatIndex)
         {
+            Logger.LogInfo(Tag,$"OnPlayerRemove [{seatIndex}]");
+            
             if (_currentState == turnState)
             {
                 turnState.OnPlayerRemove(seatIndex);

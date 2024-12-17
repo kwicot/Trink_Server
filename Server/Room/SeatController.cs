@@ -26,6 +26,7 @@ namespace Server.Core.Rooms
 
         public bool IsFree => SeatData == null;
         public bool IsReady => !IsFree && SeatData.Balance > RoomController.RoomInfo.RoomSettings.MinBalance && !SeatData.IsOut;
+        public bool Waiting { get; private set; }
         
         public async void SetPlayer(ClientData clientData, bool isRequest = false)
         {
@@ -66,8 +67,9 @@ namespace Server.Core.Rooms
         {
             UserData.Balance += SeatData.Balance;
             await UsersDatabase.UpdateUserData(UserData);
-
-            if (RoomController.StateMachine.PlaySeats.Contains(Index) && waiting)
+            Waiting = waiting;
+            
+            if (RoomController.StateMachine.PlaySeats.Contains(Index))
             {
                 Logger.LogInfo(Tag, "Out");
                 SeatData.IsOut = true;

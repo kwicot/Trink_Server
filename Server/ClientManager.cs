@@ -38,18 +38,25 @@ namespace Server.Core
         }
         public static async void OnClientDisconnected(object sender, ServerDisconnectedEventArgs e)
         {
-            Logger.LogInfo(Tag,$"Client with id [{e.Client.Id}] disconnected via {e.Reason}");
-
-            if (List.TryGetValue(e.Client.Id, out ClientData clientData))
+            try
             {
-                if (clientData.CurrentRoom != null)
-                    await clientData.CurrentRoom.RemoveClient(clientData, true);
+                Logger.LogInfo(Tag,$"Client with id [{e.Client.Id}] disconnected via {e.Reason}");
+
+                if (List.TryGetValue(e.Client.Id, out ClientData clientData))
+                {
+                    if (clientData.CurrentRoom != null)
+                        await clientData.CurrentRoom.RemoveClient(clientData, true);
                 
-                if(clientData.IsConnectedToLobby)
-                    Master.DisconnectClient(clientData);
+                    if(clientData.IsConnectedToLobby)
+                        Master.DisconnectClient(clientData, false);
                 
-                clientData.IsConnectedToServer = false;
-                clientData.DisconnectionTime = DateTime.Now;
+                    clientData.IsConnectedToServer = false;
+                    clientData.DisconnectionTime = DateTime.Now;
+                }
+            }
+            catch (Exception exception)
+            {
+                Logger.LogInfo(Tag, exception.Message);
             }
         }
 

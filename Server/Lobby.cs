@@ -23,7 +23,7 @@ namespace Server.Core
 
         private static void OnDisconectedFromMaster(ClientData clientData)
         {
-            if (clientData.IsConnectedToLobby)
+            if (clientData != null && clientData.IsConnectedToLobby)
             {
                 clientData.IsConnectedToLobby = false;
             }

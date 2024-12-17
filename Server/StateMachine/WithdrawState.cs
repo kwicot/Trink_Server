@@ -21,6 +21,11 @@ namespace Trink_RiptideServer.Library.StateMachine
             };
             _stateMachine.Actions = new List<string>();
 
+            if (!_stateMachine.IsReady)
+            {
+                _stateMachine.SetState<WaitingState>();
+            }
+            
             List<int> readySeats = new List<int>();
             var seats = _stateMachine.RoomController.Seats;
             for (int i = 0; i < seats.Length; i++)

@@ -29,7 +29,7 @@ namespace Server.Core.Rooms
             foreach (var seatController in Seats)
             {
                 if (!seatController.IsFree && seatController.SeatData.FirebaseId == firebaseId &&
-                    seatController.SeatData.IsOut)
+                    seatController.Waiting)
                     return true;
             }
 

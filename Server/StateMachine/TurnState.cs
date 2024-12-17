@@ -48,6 +48,8 @@ namespace Trink_RiptideServer.Library.StateMachine
         {
             Logger.LogInfo(Tag, $"New turn wait [{_currentTurn}]");
             
+            _stateMachine.SendData();
+            
             int seatIndex = _stateMachine.PlaySeats[_currentTurn];
             var seat = _stateMachine.RoomController.Seats[seatIndex];
             
@@ -64,8 +66,6 @@ namespace Trink_RiptideServer.Library.StateMachine
             if (seat.SeatData.Balance > 0 ||(_stateMachine.IsHideTurn && seat.SeatData.Balance >= _stateMachine.Bet *2))
             {
                 await Task.Delay((int)(Config.TurnDelay));
-
-                
                
                 if (_stateMachine.IsHideTurn && seat.SeatData.Balance < _stateMachine.Bet * 2)
                 {
@@ -92,7 +92,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                         _stateMachine.OnSeatTurn(seatIndex, -1);
                         return;
                     }
-                    
+
                     Logger.LogInfo(Tag, $"Waiting {time}. _waitTurn {_waitingTurn}");
                 }
 
@@ -110,6 +110,8 @@ namespace Trink_RiptideServer.Library.StateMachine
 
         public void OnPlayerRemove(int seatIndex)
         {
+            Logger.LogInfo(Tag, $"Remove player. InGameSeats {_stateMachine.InGameSeats}t");
+
             if (seatIndex == CurrentTurnSeatIndex)
             {
                 _stateMachine.OnSeatTurn(seatIndex, -1);
@@ -280,9 +282,7 @@ namespace Trink_RiptideServer.Library.StateMachine
             
             _stateMachine.Actions.Add($"{_stateMachine.RoomController.Seats[seatIndex].UserData.UserProfile.NickName}: Пасс");
             
-            //_stateMachine.PlaySeats.Remove(seatIndex);
             _stateMachine.LapBets[seatIndex] = TurnType.Pass;
-            //_stateMachine.BetsData.Bets[seatIndex] = 0;
             
             _stateMachine.PlayerCheckedCards = false;
             

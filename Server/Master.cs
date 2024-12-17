@@ -83,30 +83,43 @@ namespace Server.Core
 
             if (ClientManager.List.TryGetValue(fromClientId, out ClientData clientData))
             {
-                DisconnectClient(clientData);
+                DisconnectClient(clientData, true);
             }
         }
 
-        public static async void DisconnectClient(ClientData clientData)
+        public static async void DisconnectClient(ClientData clientData, bool senDisconnectMessage)
         {
-            var userData = await UsersDatabase.GetUserData(clientData.FirebaseId);
-            await UsersDatabase.UpdateUserData(userData);
+            try
+            {
+                var userData = await UsersDatabase.GetUserData(clientData.FirebaseId);
+                await UsersDatabase.UpdateUserData(userData);
             
-            if (clientData.IsConnectedToMaster)
-            {
-                clientData.FirebaseId = null;
-                OnDisconnected?.Invoke(clientData);
-                    
-                SendMessage(CreateMessage(ServerToClientId.disconnectedFromMaster)
-                    , clientData.ClientID);
-                    
-                Logger.LogInfo(Tag, $"Client [{clientData.ClientID}] [{clientData.FirebaseId}] disconnected");
+                if (clientData.IsConnectedToMaster)
+                {
+                    clientData.FirebaseId = null;
+                    OnDisconnected?.Invoke(clientData);
+
+                    if (senDisconnectMessage)
+                    {
+                        SendMessage(CreateMessage(ServerToClientId.disconnectedFromMaster)
+                            , clientData.ClientID);
+                    }
+
+                    Logger.LogInfo(Tag, $"Client [{clientData.ClientID}] [{clientData.FirebaseId}] disconnected");
+                }
+                else
+                {
+                    if (senDisconnectMessage)
+                    {
+                        SendMessage(CreateMessage(ServerToClientId.disconnectFromMasterFail)
+                                .AddInt((int)ErrorType.NOT_CONNECTED)
+                            , clientData.ClientID);
+                    }
+                }
             }
-            else
+            catch (Exception e)
             {
-                SendMessage(CreateMessage(ServerToClientId.disconnectFromMasterFail)
-                        .AddInt((int)ErrorType.NOT_CONNECTED)
-                    , clientData.ClientID);
+                Logger.LogInfo(Tag, e.Message);
             }
         }
         
