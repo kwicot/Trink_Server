@@ -19,6 +19,11 @@ namespace WindowsFormsApp1.Database
             Logger.LogInfo(Tag, $"Initialized. Access token [{AccessToken}]");
             Initialized = true;
         }
+
+        public static async Task RefreshAccessTokenAsync()
+        {
+            AccessToken = await _tokenGenerator.GetAccessTokenAsync();
+        }
         
     }
 }

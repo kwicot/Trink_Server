@@ -12,7 +12,6 @@ namespace Trink_RiptideServer.Library.StateMachine
         protected override void OnEnter()
         {
             Tag = $"{_stateMachine.RoomController.Tag}_State_EndGame";
-            _stateMachine.BetsData.TableCommission = 0;
             _stateMachine.BetsData.Bets.Clear();
             Logger.LogInfo(Tag, "Enter");
             

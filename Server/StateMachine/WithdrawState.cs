@@ -30,7 +30,7 @@ namespace Trink_RiptideServer.Library.StateMachine
             var seats = _stateMachine.RoomController.Seats;
             for (int i = 0; i < seats.Length; i++)
             {
-                if (seats[i].IsReady && seats[i].SeatData.Balance >= RoomSettings.MinBalance)
+                if (seats[i].IsReady && seats[i].SeatData.Balance >= RoomSettings.StartBet)
                 {
                     seats[i].Withdraw(RoomSettings.StartBet);
                     _stateMachine.Actions.Add($"{seats[i].UserData.UserProfile.NickName}: Оплатив вступні [{RoomSettings.MinBalance}]");

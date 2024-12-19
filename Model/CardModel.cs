@@ -29,6 +29,7 @@ namespace Trink_RiptideServer.Library.Cards
                     case CardNumber.King:
                         return 10;
                     case CardNumber.Ace:
+                    case CardNumber.Joker:
                         return 11;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -59,11 +60,20 @@ namespace Trink_RiptideServer.Library.Cards
                         return "K";
                     case CardNumber.Ace:
                         return "A";
+                    case CardNumber.Joker:
+                        return"Joker";
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
             }
         }
-        public bool IsJoker => Suit == CardSuit.Spades && Number == CardNumber.Seven;
+
+        public bool CombineWith(CardModel cardModel)
+        {
+            if (cardModel.Suit == Suit)
+                return true;
+            
+            return false;
+        }
     }
 }

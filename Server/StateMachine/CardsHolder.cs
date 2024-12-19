@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Core.Scripts;
 using Riptide.Utils;
 
@@ -20,7 +21,7 @@ namespace Trink_RiptideServer.Library.Cards
                 new CardModel() { Id = 8, Number = CardNumber.Ace, Suit = CardSuit.Clubs },
 
                 new CardModel() { Id = 9, Number = CardNumber.Six, Suit = CardSuit.Spades },
-                new CardModel() { Id = 10, Number = CardNumber.Seven, Suit = CardSuit.Spades },
+                new CardModel() { Id = 10, Number = CardNumber.Joker, Suit = CardSuit.Joker },
                 new CardModel() { Id = 11, Number = CardNumber.Eight, Suit = CardSuit.Spades },
                 new CardModel() { Id = 12, Number = CardNumber.Nine, Suit = CardSuit.Spades },
                 new CardModel() { Id = 13, Number = CardNumber.Ten, Suit = CardSuit.Spades },
@@ -97,130 +98,73 @@ namespace Trink_RiptideServer.Library.Cards
             if (cardIds == null || cardIds.Length != 3)
                 return 0;
 
-            var sum = 0;
+            var cards = new List<CardModel> { GetCard(cardIds[0]), GetCard(cardIds[1]), GetCard(cardIds[2]) };
 
-            CardModel first;
-            CardModel second;
-            CardModel three;
+            int sixCount = cards.Count(card => card.Number == CardNumber.Six);
+            int aceCount = cards.Count(card => card.Number == CardNumber.Ace);
+            bool haveJoker = cards.Any(card => card.Number == CardNumber.Joker);
 
-            int sixCount = 0;
-            bool haveSevenSpades = false;
-            int aceCount = 0;
+            // Обработка комбинаций из трёх шестёрок
+            if (sixCount == 3 || (sixCount == 2 && haveJoker))
+                return 36;
 
-            int sevenSpadesIndex = 0;
-            int sixIndex = 0;
-            int aceIndex = 0;
+            // Обработка комбинаций из двух шестёрок
+            if (sixCount == 2)
+                return 24;
 
-            first = GetCard(cardIds[0]);
-            second = GetCard(cardIds[1]);
-            three = GetCard(cardIds[2]);
-
-            if (first.Number == CardNumber.Six)
+            // Обработка одной шестёрки и джокера
+            if (sixCount == 1 && haveJoker)
             {
-                sixCount++;
-                sixIndex = 0;
-            }
-            if (second.Number == CardNumber.Six) {
-                sixCount++;
-                sixIndex = 1;
-            }
-            if (three.Number == CardNumber.Six) {
-                sixCount++;
-                sixIndex = 2;
-            }
+                var sixCard = cards.First(card => card.Number == CardNumber.Six);
+                var otherCards = cards.Where(card => card != sixCard && card.Number != CardNumber.Joker).ToList();
 
-            if (first.IsJoker)
-            {
-                haveSevenSpades = true;
-                sevenSpadesIndex = 0;
-            }
-            if (second.IsJoker) {
-                haveSevenSpades = true;
-                sevenSpadesIndex = 1;
-            }
-            if (three.IsJoker) {
-                haveSevenSpades = true;
-                sevenSpadesIndex = 2;
-            }
-
-            if (first.Number == CardNumber.Ace)
-            {
-                aceCount++;
-                aceIndex = 0;
-            }
-            if (second.Number == CardNumber.Ace) {
-                aceCount++;
-                aceIndex = 1;
-            }
-            if (three.Number == CardNumber.Ace) {
-                aceCount++;
-                aceIndex = 2;
-            }
-
-            if (sixCount == 3) return 36;
-            if (sixCount == 2 & haveSevenSpades) return 36;
-            
-            if (sixCount == 2) return 24;
-            if (sixCount == 1 & haveSevenSpades)
-            {
-                List<int> otherCards = new List<int>() { cardIds[0], cardIds[1], cardIds[2] };
-                otherCards.Remove(sevenSpadesIndex);
+                if (otherCards.Count == 1 && otherCards[0].Suit == sixCard.Suit)
+                    return 17 + otherCards[0].Value;
                 
-                var card1 = GetCard(otherCards[0]);
-                var card2 = GetCard(otherCards[1]);
-                if (card1.Suit == card2.Suit)
-                {
-                    otherCards.Remove(sixIndex);
-                    return 24 + GetCard(otherCards[0]).Value;
-                }
-                else
-                    return 24;
+                return 24;
             }
 
-            if (aceCount == 3) return 33;
-            if (aceCount == 2 & haveSevenSpades) return 33;
-            if (aceCount == 2) return 22;
-            if (aceCount == 1 & haveSevenSpades)
+            // Обработка трёх тузов
+            if (aceCount == 3 || (aceCount == 2 && haveJoker))
+                return 33;
+
+            // Обработка двух тузов
+            if (aceCount == 2)
+                return 22;
+
+            // Обработка одного туза и джокера
+            if (aceCount == 1 && haveJoker)
             {
-                List<int> otherCards = new List<int>() { cardIds[0], cardIds[1], cardIds[2] };
-                otherCards.Remove(sevenSpadesIndex);
+                var aceCard = cards.First(card => card.Number == CardNumber.Ace);
+                var otherCards = cards.Where(card => card != aceCard && card.Number != CardNumber.Joker).ToList();
 
-                var card1 = GetCard(otherCards[0]);
-                var card2 = GetCard(otherCards[1]);
-                if (card1.Suit == card2.Suit)
-                {
-                    otherCards.Remove(aceIndex);
-                    return 22 + GetCard(otherCards[0]).Value;
-                }
-                else
-                    return 22;
+                if (otherCards.Count == 1 && otherCards[0].Suit == aceCard.Suit)
+                    return 22 + otherCards[0].Value;
+                return 22;
             }
 
-            if (first.Suit == second.Suit && first.Suit == three.Suit)
-                return first.Value + second.Value + three.Value;
+            
+            // Проверка на карты одной масти и суммирование
+            var groupedBySuit = cards.GroupBy(card => card.Suit).Where(g => g.Count() > 1);
+            if (groupedBySuit.Any())
+            {
+                var bestGroup = groupedBySuit.OrderByDescending(g => g.Sum(card => card.Value)).First();
+                var sum = bestGroup.Sum(card => card.Value);
 
-            if (first.Suit == second.Suit)
-                return first.Value + second.Value;
+                if (haveJoker)
+                    sum += 11; // Джокер дополняет комбинацию
 
-            if (first.Suit == three.Suit)
-                return first.Value + three.Value;
+                return sum;
+            }
 
-            if (three.Suit == second.Suit)
-                return three.Value + second.Value;
+            // Если карты не могут быть объединены, найти максимальную карту
+            int maxCardValue = cards.Where(card => card.Number != CardNumber.Joker).Max(card => card.Value);
 
-            int a = first.Value;
-            int b = second.Value;
-            int c = three.Value;
+            if (haveJoker)
+                return maxCardValue + 11; // Джокер создаёт комбинацию с наивысшей картой
 
-            int max = b;
 
-            if (a > max)
-                max = a;
-
-            if (c > max)
-                max = c;
-
-            return max;
+            return maxCardValue;
         }
 
         int GetSum(List<int> numbers, CardSuit suit)

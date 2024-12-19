@@ -96,6 +96,8 @@ namespace Server.Core
             
                 if (clientData.IsConnectedToMaster)
                 {
+                    Logger.LogInfo(Tag, $"Client [{clientData.ClientID}] [{clientData.FirebaseId}] disconnected");
+
                     clientData.FirebaseId = null;
                     OnDisconnected?.Invoke(clientData);
 
@@ -104,8 +106,6 @@ namespace Server.Core
                         SendMessage(CreateMessage(ServerToClientId.disconnectedFromMaster)
                             , clientData.ClientID);
                     }
-
-                    Logger.LogInfo(Tag, $"Client [{clientData.ClientID}] [{clientData.FirebaseId}] disconnected");
                 }
                 else
                 {

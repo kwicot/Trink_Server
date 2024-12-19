@@ -159,6 +159,7 @@
         <Compile Include="StateMachine\TurnState.cs" />
         <Compile Include="StateMachine\TurnType.cs" />
         <Compile Include="StateMachine\WaitingState.cs" />
+        <Compile Include="StateMachine\WinsData.cs" />
         <Compile Include="StateMachine\WithdrawState.cs" />
         <EmbeddedResource Include="Forms\LoggingForm.resx">
           <DependentUpon>LoggingForm.cs</DependentUpon>

@@ -40,10 +40,11 @@ namespace Server.Core.Rooms
             _roomsMap = new Dictionary<string, RoomController>();
             RoomSettingPresets = new[]
             {
-                new RoomSettingPreset() { Type = RoomType.Noob, MinBalance = 20, MaxBalance = 200, StartBet = 2 },
-                new RoomSettingPreset() { Type = RoomType.Amator, MinBalance = 50, MaxBalance = 500, StartBet = 5 },
-                new RoomSettingPreset() { Type = RoomType.Profesional, MinBalance = 100, MaxBalance = 1000, StartBet = 10 },
-                new RoomSettingPreset() { Type = RoomType.Vip, MinBalance = 200, MaxBalance = 2000, StartBet = 20 },
+                new RoomSettingPreset() { Type = RoomType.Noob, MinBalance = 50, MaxBalance = 500, StartBet = 5 },
+                new RoomSettingPreset() { Type = RoomType.Amator, MinBalance = 500, MaxBalance = 2500, StartBet = 25 },
+                new RoomSettingPreset() { Type = RoomType.Profesional, MinBalance = 2500, MaxBalance = 15000, StartBet = 100 },
+                new RoomSettingPreset() { Type = RoomType.Vip, MinBalance = 10000, MaxBalance = 100000, StartBet = 250 },
+                
                 new RoomSettingPreset() { Type = RoomType.Custom, MinBalance = -1, MaxBalance = -1, StartBet = -1 },
             };
             Lobby.OnConnected += OnConnectedToLobby;

@@ -6,6 +6,7 @@ using Riptide;
 using Server.Core.Rooms;
 using Trink_RiptideServer.Library.Cards;
 using WindowsFormsApp1;
+using WindowsFormsApp1.StateMachine;
 
 namespace Trink_RiptideServer.Library.StateMachine
 {
@@ -38,6 +39,8 @@ namespace Trink_RiptideServer.Library.StateMachine
         public int DealerIndex { get; set; } = -1;
         public List<int> PlaySeats { get; set; } = new();
         public BetsData BetsData { get; set; } = new BetsData();
+        public WinsData WinsData { get; set; }
+
         public Dictionary<int, TurnType> LapBets { get; set; } = new();
         public RoomController RoomController { get; }
         public List<string> Actions { get; set; }
@@ -219,18 +222,11 @@ namespace Trink_RiptideServer.Library.StateMachine
             IsHideTurn = true;
             LapTurns = 0;
         
-            BetsData.TableCommission = 0;
-        
             BetsData.Bets.Clear();
         
             SetState<WaitingState>();
         }
 
-        public void TakePercent(int value)
-        {
-            BetsData.TableCommission = value;
-        }
-        
         public void SendData()
         {
             var message = CreateMessage(ServerToClientId.updateStateMachineData);
@@ -239,6 +235,9 @@ namespace Trink_RiptideServer.Library.StateMachine
             message.AddBool(IsHideTurn);
             message.AddBool(DealEnd);
             message.AddBool(CanTopUpBalance);
+            if (WinsData != null)
+                message.AddInt(WinsData.TotalBank);
+            else message.AddInt(0);
             
             message.AddInts(PlaySeats.ToArray());
             message.AddStrings(Actions.ToArray());

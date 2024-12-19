@@ -25,7 +25,7 @@ namespace Server.Core.Rooms
         public int CardsSum => CardsHolder.GetCardsSum(_cards);
 
         public bool IsFree => SeatData == null;
-        public bool IsReady => !IsFree && SeatData.Balance > RoomController.RoomInfo.RoomSettings.MinBalance && !SeatData.IsOut;
+        public bool IsReady => !IsFree && SeatData.Balance >= RoomController.RoomInfo.RoomSettings.StartBet && !SeatData.IsOut;
         public bool Waiting { get; private set; }
         
         public async void SetPlayer(ClientData clientData, bool isRequest = false)

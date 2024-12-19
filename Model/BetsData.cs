@@ -1,7 +1,5 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
-using Model;
 using Riptide;
 
 namespace Trink_RiptideServer
@@ -10,7 +8,6 @@ namespace Trink_RiptideServer
     public class BetsData
     {
         public Dictionary<int, int> Bets = new();
-        public int TableCommission = 0;
         public int TotalBank
         {
             get
@@ -24,37 +21,9 @@ namespace Trink_RiptideServer
                     }
                 }
 
-                value -= TableCommission;
-
                 return value;
             }
         }
-        
-        public void Remove(int index)
-        {
-            var playerBet = Bets[index];
-
-            for (int i = 0; i < 20; i++)
-            {
-                if (Bets.TryGetValue(i, out var bets))
-                {
-                    Bets[i] -= playerBet;
-                }
-            }
-            
-        }
-
-        public int PlayerWin(int index)
-        {
-            int count = 0;
-            foreach (var bet in Bets)
-            {
-                if (bet.Value > 0)
-                    count++;
-            }
-            return Bets[index] * count;            
-        }
-        
         
         public Message GetMessageData(Message message)
         {
@@ -65,11 +34,9 @@ namespace Trink_RiptideServer
                 message.AddInt(bet.Value);
             }
 
-            message.AddInt(TableCommission);
-
             return message;
         }
-
+        
         public static BetsData GetDataFromMessage(Message message)
         {
             var betsData = new BetsData();
@@ -86,10 +53,7 @@ namespace Trink_RiptideServer
                 }
             }
             
-            int tableCommission = message.GetInt();
-
             betsData.Bets = bets;
-            betsData.TableCommission = tableCommission;
 
             return betsData;
         }

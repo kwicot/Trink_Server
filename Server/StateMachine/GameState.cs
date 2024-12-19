@@ -13,7 +13,7 @@ namespace Trink_RiptideServer.Library.StateMachine
         protected StateMachine _stateMachine;
         protected StateMachineConfig Config => Program.Config.StateMachineConfig;
         protected RoomSettings RoomSettings => _stateMachine.RoomController.RoomInfo.RoomSettings;
-        protected string Tag;
+        public string Tag { get; protected set; }
 
         public GameState(StateMachine stateMachine)
         {

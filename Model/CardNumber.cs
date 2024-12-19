@@ -10,6 +10,7 @@
         Jack = 5,
         Queen = 6,
         King = 7,
-        Ace = 8
+        Ace = 8,
+        Joker = 9
     }
 }
