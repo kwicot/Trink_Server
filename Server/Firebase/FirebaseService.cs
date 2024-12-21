@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Server.Core;
 
 namespace WindowsFormsApp1.Database
@@ -15,6 +17,14 @@ namespace WindowsFormsApp1.Database
         
         public static async Task Initialize()
         {
+            if (FirebaseApp.DefaultInstance == null)
+            {
+                FirebaseApp.Create(new AppOptions()
+                {
+                    Credential = GoogleCredential.FromFile(Constants.ServiceAccountKeyPath)
+                });
+            }
+            
             _tokenGenerator = new TokenGenerator(Constants.ServiceAccountKeyPath);
             
             AccessToken = await _tokenGenerator.GetAccessTokenAsync();
