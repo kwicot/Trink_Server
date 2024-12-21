@@ -131,6 +131,18 @@ namespace Server.Core.Rooms
 
             if (_roomsMap.TryGetValue(roomName, out RoomController roomController))
             {
+                if (roomController.IsWaitingPlayer(clientData.FirebaseId))
+                {
+                    await Task.Delay(1000);
+                    await roomController.AddClient(clientData);
+                           
+                    SendMessage(CreateMessage(ServerToClientId.joinedRoom)
+                            .AddRoomInfo(roomController.RoomInfo)
+                        , clientData.ClientID);
+                    
+                    return;
+                }
+                
                 if (roomController.RoomInfo.PlayersCount >= roomController.RoomInfo.RoomSettings.MaxPlayers)
                 {
                     SendMessage(CreateMessage(ServerToClientId.joinRoomFail)
@@ -292,6 +304,17 @@ namespace Server.Core.Rooms
             {
                 roomController.OnServerTick();
             }
+        }
+
+        public static async Task OnServerStopping()
+        {
+            List<Task> tasks = new List<Task>();
+            foreach (var roomController in _roomsMap)
+            {
+                tasks.Add(roomController.Value.OnServerStopping());
+            }
+
+            await Task.WhenAll(tasks);
         }
         
         

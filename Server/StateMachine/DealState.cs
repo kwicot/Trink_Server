@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Riptide.Utils;
 using WindowsFormsApp1;
-using LogType = Riptide.Utils.LogType;
 
 namespace Trink_RiptideServer.Library.StateMachine
 {
@@ -75,7 +72,7 @@ namespace Trink_RiptideServer.Library.StateMachine
             }
 
             await Task.Delay((int)(Config.DealInterval));
-            _stateMachine.SetState<TurnState>();
+            NextState();
         }
 
         int GetDealer()
@@ -124,6 +121,17 @@ namespace Trink_RiptideServer.Library.StateMachine
             var next = current + 1;
             
             return 0;
+        }
+        
+        void NextState()
+        {
+            if (WaitingEnd)
+            {
+                WaitingEnd = false;
+                return;
+            }
+
+            _stateMachine.SetState<TurnState>();
         }
 
 

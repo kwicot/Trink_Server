@@ -13,6 +13,8 @@ namespace Trink_RiptideServer.Library.StateMachine
         {
             Tag = $"{_stateMachine.RoomController.Tag}_State_EndGame";
             _stateMachine.BetsData.Bets.Clear();
+            _stateMachine.PlaySeats.Clear();
+            
             Logger.LogInfo(Tag, "Enter");
             
             _cancellationTokenSource = new CancellationTokenSource();
@@ -57,7 +59,17 @@ namespace Trink_RiptideServer.Library.StateMachine
             }
 
             await Task.Delay((int)(Program.Config.StateMachineConfig.EndDelay));
+            NextState();
+        }
 
+        void NextState()
+        {
+            if (WaitingEnd)
+            {
+                WaitingEnd = false;
+                return;
+            }
+            
             _stateMachine.NewGame();
         }
 

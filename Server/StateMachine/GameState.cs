@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Threading.Tasks;
 using Model;
 using Riptide.Utils;
 using WindowsFormsApp1;
@@ -14,6 +15,9 @@ namespace Trink_RiptideServer.Library.StateMachine
         protected StateMachineConfig Config => Program.Config.StateMachineConfig;
         protected RoomSettings RoomSettings => _stateMachine.RoomController.RoomInfo.RoomSettings;
         public string Tag { get; protected set; }
+        
+        protected bool WaitingEnd = false;
+
 
         public GameState(StateMachine stateMachine)
         {
@@ -24,6 +28,7 @@ namespace Trink_RiptideServer.Library.StateMachine
         {
             LogInfo($"EnterState: {this}");
             OnEnter();
+            WaitingEnd = false;
         }
 
         public void Tick()
@@ -35,6 +40,15 @@ namespace Trink_RiptideServer.Library.StateMachine
         {
             LogInfo($"ExitState: {this}");
             OnExit();
+        }
+
+        public async Task ProcessServerStopping()
+        {
+            WaitingEnd = true;
+            while (WaitingEnd)
+            {
+                await Task.Delay(1000);
+            }
         }
 
         protected abstract void OnEnter();

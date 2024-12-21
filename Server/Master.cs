@@ -36,6 +36,19 @@ namespace Server.Core
                 else
                 {
                     var firebaseId = message.GetString();
+                    var gameVersion = message.GetString();
+
+                    if (Program.Config.GameVersion != gameVersion)
+                    {
+                        Logger.LogError(Tag, $"Cant connect with {gameVersion} game version. Need {Program.Config.GameVersion}");
+                        
+                        SendMessage(CreateMessage(ServerToClientId.connectionToMasterFail)
+                                .AddInt((int)ErrorType.INCORRECT_VERSION)
+                            , fromClientId);
+                        
+                        return;
+                    }
+                    
                     Logger.LogInfo(Tag, $"Request firebase id : [{firebaseId}]");
                     if (!string.IsNullOrWhiteSpace(firebaseId))
                     {
@@ -55,7 +68,7 @@ namespace Server.Core
 
                         if (RoomManager.IsWaitingReturn(firebaseId, out var room))
                         {
-                            await Task.Delay(2000);
+                            await Task.Delay(1000);
                            await room.AddClient(clientData);
                            
                            SendMessage(CreateMessage(ServerToClientId.joinedRoom)

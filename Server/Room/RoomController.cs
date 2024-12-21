@@ -22,6 +22,7 @@ namespace Server.Core.Rooms
         
         public SeatController[] Seats { get; }
         public StateMachine StateMachine { get; private set; }
+        
         public int Balance;
 
         public bool IsWaitingPlayer(string firebaseId)
@@ -141,6 +142,11 @@ namespace Server.Core.Rooms
         public void OnPlayerLoadedScene(ClientData clientData)
         {
             SendDataToNewPlayer(clientData);
+        }
+
+        public async Task OnServerStopping()
+        {
+            await StateMachine.OnServerStopping();
         }
 
 

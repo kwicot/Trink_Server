@@ -71,6 +71,9 @@ namespace Server.Core
                 _riptideServer.Stop();
 
                 IsRunning = false;
+
+                await RoomManager.OnServerStopping();
+                
                 OnStatusChanged?.Invoke();
                 
                 Logger.LogInfo(Tag,"Server stoped");

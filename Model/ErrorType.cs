@@ -19,5 +19,6 @@
         NOT_ENOUGH_MONEY = 14,
         INCORRECT_RANGE = 15,
         PASSWORD_INCORECT = 16,
+        INCORRECT_VERSION = 17,
     }
 }

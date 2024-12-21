@@ -5,6 +5,7 @@ using Org.BouncyCastle.Crypto.Signers;
 using Riptide;
 using Server.Core.Models;
 using Trink_RiptideServer.Library.Cards;
+using Trink_RiptideServer.Library.StateMachine;
 using WindowsFormsApp1;
 
 namespace Server.Core.Rooms
@@ -25,13 +26,32 @@ namespace Server.Core.Rooms
         public int CardsSum => CardsHolder.GetCardsSum(_cards);
 
         public bool IsFree => SeatData == null;
-        public bool IsReady => !IsFree && SeatData.Balance >= RoomController.RoomInfo.RoomSettings.StartBet && !SeatData.IsOut;
+        public bool WaitingTopUpBalance = false;
+
+        private int _timerEndCounter = 0;
+
+        public bool IsReady
+        {
+            get
+            {
+                if (IsFree)
+                    return false;
+                
+                if(SeatData.Balance < RoomController.RoomInfo.RoomSettings.StartBet && !WaitingTopUpBalance)
+                    OfferToTopUpBalance();
+                
+                bool ready = SeatData.Balance >= RoomController.RoomInfo.RoomSettings.StartBet && !SeatData.IsOut;
+                if(!ready)
+                    Logger.LogInfo(Tag, $"Seat {Index} not ready. Free: {IsFree}, Balance: {SeatData.Balance}, IsOut: {SeatData.IsOut}");
+                return ready;
+            }
+        }
         public bool Waiting { get; private set; }
-        
-        public async void SetPlayer(ClientData clientData, bool isRequest = false)
+
+        public async void SetPlayer(ClientData clientData)
         {
             var userData = await UsersDatabase.GetUserData(clientData.FirebaseId);
-            
+
             SeatData = new SeatData()
             {
                 FirebaseId = clientData.FirebaseId,
@@ -41,18 +61,17 @@ namespace Server.Core.Rooms
             ClientData = clientData;
             UserData = userData;
             
+            _timerEndCounter = 0;
+
             _cards = new int[3];
-            
+
             SendData();
-            
-            if (isRequest)
-            {
-                SendMessage(CreateMessage(ServerToClientId.seatRequestResult)
-                        .AddBool(true)
-                    , clientData.ClientID);
-                
-                OfferToTopUpBalance();
-            }
+
+            SendMessage(CreateMessage(ServerToClientId.seatRequestResult)
+                    .AddBool(true)
+                , clientData.ClientID);
+
+            OfferToTopUpBalance();
         }
 
         public void ReturnPlayer(ClientData newClientData)
@@ -62,6 +81,9 @@ namespace Server.Core.Rooms
 
             SeatData.IsOut = false;
             SendData();
+            
+            if(WaitingTopUpBalance)
+                OfferToTopUpBalance();
         }
         public async Task RemovePlayer(bool waiting)
         {
@@ -88,6 +110,7 @@ namespace Server.Core.Rooms
             SeatData = null;
             UserData = null;
             ClientData = null;
+            WaitingTopUpBalance = false;
         }
         
 
@@ -104,6 +127,8 @@ namespace Server.Core.Rooms
         {
             if (!IsFree)
             {
+                WaitingTopUpBalance = true;
+                
                 SendMessage(CreateMessage(ServerToClientId.offerToTopUpBalance)
                     .AddUserData(UserData)
                     .AddSeatData(SeatData)
@@ -132,9 +157,15 @@ namespace Server.Core.Rooms
         
         public void ShowCardsToAll()
         {
-            RoomController.SendToAll(CreateMessage(ServerToClientId.showCards)
-                .AddInts(_cards)
-                .AddInt(CardsSum));
+            TurnType lastTurn = TurnType.No;
+            RoomController.StateMachine.LapBets.TryGetValue(Index, out lastTurn);
+            
+            if (lastTurn != TurnType.Pass)
+            {
+                RoomController.SendToAll(CreateMessage(ServerToClientId.showCards)
+                    .AddInts(_cards)
+                    .AddInt(CardsSum));
+            }
         }
 
         public void Turn(bool isHideTurn, float turnTime, bool isLastTurn, int minBet)
@@ -146,9 +177,17 @@ namespace Server.Core.Rooms
                 .AddInt(minBet));
         }
 
+        public void OnTurn()
+        {
+            _timerEndCounter = 0;
+        }
         public void EndTurn()
         {
             RoomController.SendToAll(CreateMessage(ServerToClientId.endTurn));
+            _timerEndCounter++;
+
+            if (_timerEndCounter >= Program.Config.StateMachineConfig.AfkTurnsMax)
+                RemovePlayer(false);
         }
 
         public void Return(int value)
@@ -222,7 +261,7 @@ namespace Server.Core.Rooms
 
                 if (userData.Balance >= RoomController.RoomInfo.RoomSettings.MinBalance)
                 {
-                    SetPlayer(clientData, true);
+                    SetPlayer(clientData);
                 }
                 else
                 {
@@ -261,6 +300,8 @@ namespace Server.Core.Rooms
                     SeatData.Balance += value;
                     UserData.Balance -= value;
                     
+                    await UsersDatabase.UpdateUserData(UserData);
+                    
                     SendMessage(CreateMessage(ServerToClientId.topUpBalanceResult)
                         .AddBool(true)
                         , SeatData.ClientId);
@@ -283,6 +324,8 @@ namespace Server.Core.Rooms
                             .AddInt((int)ErrorType.INCORRECT_RANGE)
                         , SeatData.ClientId);
                 }
+
+                WaitingTopUpBalance = false;
             }
             else if (!IsFree && value <= 0)
             {

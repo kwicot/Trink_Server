@@ -49,6 +49,17 @@ namespace Trink_RiptideServer.Library.StateMachine
 
             _stateMachine.SendData();
             
+            NextState();
+        }
+        
+        void NextState()
+        {
+            if (WaitingEnd)
+            {
+                WaitingEnd = false;
+                return;
+            }
+
             _stateMachine.SetState<DealState>();
         }
 

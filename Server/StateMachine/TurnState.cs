@@ -273,7 +273,7 @@ namespace Trink_RiptideServer.Library.StateMachine
             }
 
             Logger.LogInfo(Tag, "All bets is min. End turns");
-            _stateMachine.SetState<CalcState>();
+            NextState();
         }
 
         void OnPassTurn(int seatIndex)
@@ -503,6 +503,17 @@ namespace Trink_RiptideServer.Library.StateMachine
             }
 
             return result;
+        }
+        
+        void NextState()
+        {
+            if (WaitingEnd)
+            {
+                WaitingEnd = false;
+                return;
+            }
+
+            _stateMachine.SetState<CalcState>();
         }
 
         public void SendStateToPlayer(ushort clientId)

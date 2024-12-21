@@ -56,6 +56,13 @@ namespace WindowsFormsApp1
         private async void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             await Server.Core.Server.Stop();
+            
+        }
+
+        private void editToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ConfigForm configForm = new ConfigForm();
+            configForm.ShowDialog();
         }
     }
 }

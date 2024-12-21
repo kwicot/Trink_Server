@@ -52,6 +52,7 @@ namespace WindowsFormsApp1
                     Logger.LogInfo(Tag, $"Turn from Seat [{seatIndex}] Value [{value}]");
                     
                     clientData.CurrentRoom.StateMachine.OnSeatTurn(seatIndex, value);
+                    clientData.CurrentRoom.Seats[seatIndex].OnTurn();
                 }
                 else 
                     Logger.LogInfo(Tag, $"Turn from [{fromClientId}] denied. Not in a room");

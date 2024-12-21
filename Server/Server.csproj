@@ -128,6 +128,12 @@
         <Compile Include="Firebase\FirebaseService.cs" />
         <Compile Include="Firebase\ServiceAccount.cs" />
         <Compile Include="Firebase\TokenGenerator.cs" />
+        <Compile Include="Forms\ConfigForm.cs">
+          <SubType>Form</SubType>
+        </Compile>
+        <Compile Include="Forms\ConfigForm.Designer.cs">
+          <DependentUpon>ConfigForm.cs</DependentUpon>
+        </Compile>
         <Compile Include="Forms\LoggingForm.cs" />
         <Compile Include="Forms\LoggingForm.Designer.cs">
           <DependentUpon>LoggingForm.cs</DependentUpon>
@@ -161,6 +167,9 @@
         <Compile Include="StateMachine\WaitingState.cs" />
         <Compile Include="StateMachine\WinsData.cs" />
         <Compile Include="StateMachine\WithdrawState.cs" />
+        <EmbeddedResource Include="Forms\ConfigForm.resx">
+          <DependentUpon>ConfigForm.cs</DependentUpon>
+        </EmbeddedResource>
         <EmbeddedResource Include="Forms\LoggingForm.resx">
           <DependentUpon>LoggingForm.cs</DependentUpon>
         </EmbeddedResource>

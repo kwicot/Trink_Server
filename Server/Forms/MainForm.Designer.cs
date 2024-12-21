@@ -40,6 +40,8 @@
             this.label_status = new System.Windows.Forms.Label();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripButton_showLog = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSplitButton_config = new System.Windows.Forms.ToolStripSplitButton();
+            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -116,7 +118,7 @@
             // 
             // toolStrip1
             // 
-            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.toolStripButton_showLog });
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.toolStripButton_showLog, this.toolStripSplitButton_config });
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(431, 25);
@@ -133,11 +135,28 @@
             this.toolStripButton_showLog.Text = "Log";
             this.toolStripButton_showLog.Click += new System.EventHandler(this.toolStripButton_showLog_Click);
             // 
+            // toolStripSplitButton_config
+            // 
+            this.toolStripSplitButton_config.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripSplitButton_config.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { this.editToolStripMenuItem });
+            this.toolStripSplitButton_config.Image = ((System.Drawing.Image)(resources.GetObject("toolStripSplitButton_config.Image")));
+            this.toolStripSplitButton_config.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripSplitButton_config.Name = "toolStripSplitButton_config";
+            this.toolStripSplitButton_config.Size = new System.Drawing.Size(59, 22);
+            this.toolStripSplitButton_config.Text = "Config";
+            // 
+            // editToolStripMenuItem
+            // 
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.editToolStripMenuItem.Text = "Edit";
+            this.editToolStripMenuItem.Click += new System.EventHandler(this.editToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(431, 154);
+            this.ClientSize = new System.Drawing.Size(431, 92);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.label_status);
             this.Controls.Add(this.label3);
@@ -155,6 +174,9 @@
             this.ResumeLayout(false);
             this.PerformLayout();
         }
+
+        private System.Windows.Forms.ToolStripSplitButton toolStripSplitButton_config;
+        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
 
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton toolStripButton_showLog;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Kwicot.Server.ClientLibrary.Models.Enums;
 using Model;
 using Riptide;
@@ -61,7 +62,10 @@ namespace Trink_RiptideServer.Library.StateMachine
                 foreach (var seat in RoomController.Seats)
                 {
                     if (seat.IsReady)
+                    {
+                        Logger.LogError(Tag, $"Seat {seat.Index} is ready");
                         ready++;
+                    }
                 }
 
                 return ready >= 2;
@@ -154,23 +158,30 @@ namespace Trink_RiptideServer.Library.StateMachine
 
         public void OnSeatTurn(int seatIndex, int value)
         {
-            if (_currentState == turnState)
+            try
             {
-                turnState.OnTurn(seatIndex, value);
-                
-                RoomController.SendToAll(CreateMessage(ServerToClientId.seatTurn)
-                    .AddInt(seatIndex)
-                    .AddInt(value)
-                    .AddInt(BetsData.Bets[seatIndex]));
-
-                if (!IsHideTurn || PlayerCheckedCards)
+                if (_currentState == turnState)
                 {
-                    IsHideTurn = false;
-                    foreach (var playSeat in PlaySeats)
-                        RoomController.Seats[playSeat].ShowCardsLocal();
-                }
+                    RoomController.SendToAll(CreateMessage(ServerToClientId.seatTurn)
+                        .AddInt(seatIndex)
+                        .AddInt(value)
+                        .AddInt(BetsData.Bets[seatIndex]));
+
+                    if (!IsHideTurn || PlayerCheckedCards)
+                    {
+                        IsHideTurn = false;
+                        foreach (var playSeat in PlaySeats)
+                            RoomController.Seats[playSeat].ShowCardsLocal();
+                    }
+                    
+                    turnState.OnTurn(seatIndex, value);
                 
-                SendData();
+                    SendData();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(Tag, e.Message);
             }
         }
 
@@ -224,7 +235,27 @@ namespace Trink_RiptideServer.Library.StateMachine
         
             BetsData.Bets.Clear();
         
-            SetState<WaitingState>();
+           SetState<WaitingState>();
+        }
+
+        public async Task OnServerStopping()
+        {
+            if (_currentState == calcState || _currentState == withdrawState || _currentState == endState)
+            {
+                await _currentState.ProcessServerStopping();
+            }
+            else if (_currentState == turnState)
+            {
+                foreach (var betData in BetsData.Bets)
+                {
+                    var seat = RoomController.Seats[betData.Key];
+                    if (seat != null)
+                    {
+                        seat.Return(betData.Value);
+                        await seat.RemovePlayer(false);
+                    }
+                }
+            }
         }
 
         public void SendData()
@@ -237,13 +268,18 @@ namespace Trink_RiptideServer.Library.StateMachine
             message.AddBool(CanTopUpBalance);
             if (WinsData != null)
                 message.AddInt(WinsData.TotalBank);
-            else message.AddInt(0);
+            else message.AddInt(BetsData.TotalBank);
             
             message.AddInts(PlaySeats.ToArray());
             message.AddStrings(Actions.ToArray());
             
             RoomController.SendToAll(message);
             SendStatus(_status);
+            
+            foreach (var seat in RoomController.Seats)
+            {
+                seat.SendData();
+            }
         }
 
         public void SendStatus(string status)

@@ -23,9 +23,13 @@ namespace WindowsFormsApp1.Database
         {
         }
 
-        private static void ConfigureHttpClient()
+        private static async Task ConfigureHttpClient()
         {
             HttpClient.DefaultRequestHeaders.Clear();
+
+            if (DateTime.Now > FirebaseService.TokenExpiration)
+                await FirebaseService.RefreshAccessTokenAsync();
+            
             HttpClient.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", FirebaseService.AccessToken);
         }
@@ -76,7 +80,7 @@ namespace WindowsFormsApp1.Database
             {
                 await ExecuteRequestWithRetryAsync(async () =>
                 {
-                    ConfigureHttpClient();
+                    await ConfigureHttpClient();
                     var jsonData = JsonConvert.SerializeObject(data);
                     var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                     var response = await HttpClient.PutAsync($"{Constants.FirebaseUrl}/{path}.json", content);
@@ -97,7 +101,7 @@ namespace WindowsFormsApp1.Database
             {
                 await ExecuteRequestWithRetryAsync(async () =>
                 {
-                    ConfigureHttpClient();
+                    await ConfigureHttpClient();
                     var response = await HttpClient.GetAsync($"{Constants.FirebaseUrl}/{path}.json");
 
                     if (!response.IsSuccessStatusCode)

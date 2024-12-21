@@ -44,6 +44,7 @@ namespace Trink_RiptideServer.Library.StateMachine
         {
             _cancellationTokenSource.Cancel();
         }
+        
 
         public override void Dispose()
         {
@@ -56,12 +57,15 @@ namespace Trink_RiptideServer.Library.StateMachine
         {
             await Task.Delay((int)Config.DebugDelay);
 
+            foreach (var seatIndex in _stateMachine.PlaySeats)
+            {
+                _stateMachine.RoomController.Seats[seatIndex].ShowCardsToAll();
+            }
+
             await Task.Delay(2000);
             await CalcReturns();
             await Task.Delay(2000);
             
-            
-
             //TODO calc table percent
             if (!percentTaked)
             {
@@ -81,7 +85,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                 int index = _stateMachine.FirstInGameSeatIndex;
                 if (index == -1)
                 {
-                    _stateMachine.SetState<EndState>();
+                    NextState();
                     return;
                 }
 
@@ -89,7 +93,7 @@ namespace Trink_RiptideServer.Library.StateMachine
 
                 await Task.Delay(2000);
 
-                _stateMachine.SetState<EndState>();
+                NextState();
             }
 
             else if (bestScores.Count > 1) // 1+ winners
@@ -108,7 +112,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                 if(_stateMachine.WinsData.HaveWins())
                     _task = Task.Run(CalcScores, _cancellationTokenSource.Token);
                 else
-                    _stateMachine.SetState<EndState>();
+                    NextState();
                 
             }
             else //Only 1 with biggest score
@@ -123,7 +127,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                     
                     await Win(seatIndex, playerMaxWin);
                     
-                    _stateMachine.SetState<EndState>();
+                    NextState();
                 }
                 else // Win part of balance
                 {
@@ -134,7 +138,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                     if (_stateMachine.WinsData.HaveWins())
                         _task = Task.Run(CalcScores, _cancellationTokenSource.Token);
                     else
-                        _stateMachine.SetState<EndState>();
+                        NextState();
                 }
             }
         }
@@ -144,7 +148,6 @@ namespace Trink_RiptideServer.Library.StateMachine
         {
             var seat = _stateMachine.RoomController.Seats[seatIndex];
             
-            seat.ShowCardsToAll();
             _stateMachine.SendStatus($"{seat.UserData.UserProfile.NickName} виграв {value}");
 
             _stateMachine.BetsData.Bets[seatIndex] = 0;
@@ -232,7 +235,6 @@ namespace Trink_RiptideServer.Library.StateMachine
                 var seat = _stateMachine.RoomController.Seats[winData.Key];
                 
                 _stateMachine.SendStatus($"Гравець {seat.UserData.UserProfile.NickName} виграв {winData.Value}");
-                seat.ShowCardsToAll();
                 seat.Win(winData.Value);
 
                 await Task.Delay(5000);
@@ -240,7 +242,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                     
             await Task.Delay(3000);
 
-            _stateMachine.SetState<EndState>();
+            NextState();
         }
 
         
@@ -280,6 +282,17 @@ namespace Trink_RiptideServer.Library.StateMachine
             }
             
             return indexesList;
+        }
+
+        void NextState()
+        {
+            if (WaitingEnd)
+            {
+                WaitingEnd = false;
+                return;
+            }
+            
+            _stateMachine.SetState<EndState>();
         }
 
         public CalcState(StateMachine stateMachine) : base(stateMachine) { }

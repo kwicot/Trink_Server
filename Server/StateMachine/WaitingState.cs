@@ -20,6 +20,10 @@ namespace Trink_RiptideServer.Library.StateMachine
             _cancellationTokenSource = new CancellationTokenSource();
             _stateMachine.SendStatus("Очікування початку");
 
+            _stateMachine.WinsData = null;
+            _stateMachine.BetsData.Bets.Clear();
+
+            WaitingEnd = false;
             
             _task = Task.Run(() => 
             {
@@ -33,6 +37,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                 }
             }, _cancellationTokenSource.Token);
             
+            _stateMachine.SendData();
         }
 
         protected override void OnTick()
@@ -58,7 +63,7 @@ namespace Trink_RiptideServer.Library.StateMachine
             
             while (!_stateMachine.IsReady)
             {
-                await Task.Delay(100);
+                await Task.Delay(1000);
                 if (_cancellationTokenSource.IsCancellationRequested)
                 {
                     Logger.LogInfo(Tag, "Cancel waiting");
