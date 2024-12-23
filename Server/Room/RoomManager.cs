@@ -315,6 +315,8 @@ namespace Server.Core.Rooms
             }
 
             await Task.WhenAll(tasks);
+            
+            _roomsMap.Clear();
         }
         
         

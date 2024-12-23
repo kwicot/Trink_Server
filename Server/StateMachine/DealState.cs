@@ -71,6 +71,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                 await Task.Delay((int)(Config.DealInterval));
             }
 
+            _stateMachine.DealEnd = true;
             await Task.Delay((int)(Config.DealInterval));
             NextState();
         }

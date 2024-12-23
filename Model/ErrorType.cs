@@ -20,5 +20,6 @@
         INCORRECT_RANGE = 15,
         PASSWORD_INCORECT = 16,
         INCORRECT_VERSION = 17,
+        ALREADY_SEAT = 18,
     }
 }

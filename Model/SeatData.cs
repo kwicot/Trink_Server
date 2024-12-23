@@ -9,12 +9,15 @@ namespace Model
         public int Balance { get; set; }
         public bool IsOut { get; set; }
         
+        public int LastBet { get; set; }
+        
         public Message GetMessageData(Message message)
         {
             message.AddString(FirebaseId);
             message.AddInt(Balance);
             message.AddUShort(ClientId);
             message.AddBool(IsOut);
+            message.AddInt(LastBet);
             
             return message;
         }
@@ -25,13 +28,15 @@ namespace Model
             int balance = message.GetInt();
             ushort clientId = message.GetUShort();
             bool isOut = message.GetBool();
+            int lastBet = message.GetInt();
 
             return new SeatData()
             {
                 FirebaseId = firebaseId,
                 Balance = balance,
                 ClientId = clientId,
-                 IsOut = isOut
+                 IsOut = isOut,
+                 LastBet = lastBet
             };
         }
     }

@@ -13,6 +13,9 @@ namespace Trink_RiptideServer.Library.StateMachine
         public int CurrentTurnSeatIndex => _stateMachine.PlaySeats[_currentTurn];
 
         private bool _waitingTurn = false;
+
+        private float _timeLeft;
+        private bool _lastTurnOnLap;
         
         protected override void OnEnter()
         {
@@ -73,27 +76,27 @@ namespace Trink_RiptideServer.Library.StateMachine
                     _stateMachine.OnSeatCheckCards(seatIndex);
                 }
                 
-                bool lastTurnOnLap = _currentTurn >= _stateMachine.InGameSeats - 1;
-                seat.Turn(_stateMachine.IsHideTurn, Config.TurnWait, lastTurnOnLap, _stateMachine.Bet);
+                _lastTurnOnLap = _currentTurn >= _stateMachine.InGameSeats - 1;
+                seat.Turn(_stateMachine.IsHideTurn, Config.TurnWait, _lastTurnOnLap, _stateMachine.Bet);
                 
-                float time = (int)Config.TurnWait;
+                _timeLeft = (int)Config.TurnWait;
                 
                 _waitingTurn = true;
-                while ( time > 0)
+                while ( _timeLeft > 0)
                 {
                     await Task.Delay(1000);
-                    time -= 1000;
+                    _timeLeft -= 1000;
                     
                     if(!_waitingTurn)
                         return;
                     
-                    if (seat.SeatData.IsOut)
-                    {
-                        _stateMachine.OnSeatTurn(seatIndex, -1);
-                        return;
-                    }
+                    // if (seat.SeatData.IsOut)
+                    // {
+                    //     _stateMachine.OnSeatTurn(seatIndex, -1);
+                    //     return;
+                    // }
 
-                    Logger.LogInfo(Tag, $"Waiting {time}. _waitTurn {_waitingTurn}");
+                    Logger.LogInfo(Tag, $"Waiting {_timeLeft}. _waitTurn {_waitingTurn}");
                 }
 
                 _waitingTurn = false;
@@ -117,6 +120,19 @@ namespace Trink_RiptideServer.Library.StateMachine
                 _stateMachine.OnSeatTurn(seatIndex, -1);
             }
         }
+
+        public void OnPlayerLoaded(int seatIndex)
+        {
+            int turnSeatIndex = _stateMachine.PlaySeats[_currentTurn];
+            var seat = _stateMachine.RoomController.Seats[turnSeatIndex];
+            
+            if (_timeLeft > 1)
+            {
+                seat.Turn(_stateMachine.IsHideTurn, Config.TurnWait, _lastTurnOnLap, _stateMachine.Bet);
+            }
+        }
+        
+        
 
         public void OnTurn(int seatIndex, int value)
         {

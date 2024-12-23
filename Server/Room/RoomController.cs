@@ -98,31 +98,36 @@ namespace Server.Core.Rooms
             
             var userData = await UsersDatabase.GetUserData(clientData.FirebaseId);
             RoomInfo.Players.Add(userData);
-
-
+            
             foreach (var seatController in Seats)
             {
-                if (!seatController.IsFree && seatController.ClientData.FirebaseId == clientData.FirebaseId)
-                { 
-                    seatController.ReturnPlayer(clientData);
+                if (!seatController.IsFree)
+                {
+                    if (seatController.SeatData.FirebaseId == clientData.FirebaseId)
+                    { 
+                        seatController.ReturnPlayer(clientData);
+                    }
                 }
             }
 
             _removeTimerEnable = false;
             clientData.CurrentRoom = this;
 
-            Logger.LogInfo(Tag, $"{userData.UserProfile.NickName} joined");
             return true;
         }
 
         public async Task RemoveClient(ClientData clientData, bool waiting)
         {
+            clientData.InGameScene = false;
+            
             var userData = await UsersDatabase.GetUserData(clientData.FirebaseId);
             var seat = SeatOfPlayer(clientData);
 
             if (seat != null)
             {
-                StateMachine.OnPlayerRemove(seat.Index);
+                if(!waiting)
+                    StateMachine.OnPlayerRemove(seat.Index);
+                
                 await seat.RemovePlayer(waiting);
             }
 
@@ -141,7 +146,10 @@ namespace Server.Core.Rooms
 
         public void OnPlayerLoadedScene(ClientData clientData)
         {
+            clientData.InGameScene = true;
             SendDataToNewPlayer(clientData);
+
+            StateMachine.OnPlayerLoaded(clientData.ClientID);
         }
 
         public async Task OnServerStopping()
@@ -152,11 +160,11 @@ namespace Server.Core.Rooms
 
         void SendDataToNewPlayer(ClientData clientData)
         {
-            foreach (var seat in Seats)
-                seat.SendData(clientData.ClientID);
-            
             SendRoomData();
             StateMachine.SendData();
+            
+            foreach (var seat in Seats)
+                seat.SendData(clientData.ClientID);
         }
         public void SendRoomData()
         {
@@ -165,7 +173,11 @@ namespace Server.Core.Rooms
         }
         
         static Message CreateMessage(ServerToClientId id) => Message.Create(MessageSendMode.Reliable, id);
-        static void SendMessage(Message message, ushort clientId) => Server.SendMessage(message, clientId);
+        static void SendMessage(Message message, ushort clientId)
+        {
+            if(ClientManager.List.TryGetValue(clientId, out var client) && client.InGameScene)
+                Server.SendMessage(message, clientId);
+        }
 
         public void SendToAll(Message message, params ushort[] excludeClients)
         {

@@ -9,6 +9,7 @@ namespace Server.Core.Models
         public string FirebaseId { get; set; }
         public DateTime DisconnectionTime { get; set; }
         public DateTime ConnectionTime { get; set; }
+        public bool InGameScene { get; set; }
         
         public RoomController CurrentRoom { get; set; }
         

@@ -18,6 +18,8 @@ namespace Server.Core
         private static Riptide.Server _riptideServer;
         
         public static bool IsRunning { get; private set; }
+        public static bool IsStopping { get; private set; }
+        
         public static Action OnStatusChanged;
         
         public static DateTime ServerTime => DateTime.Now;
@@ -68,12 +70,15 @@ namespace Server.Core
         {
             if (IsRunning)
             {
-                _riptideServer.Stop();
-
-                IsRunning = false;
+                IsStopping = true;
+                OnStatusChanged?.Invoke();
 
                 await RoomManager.OnServerStopping();
-                
+
+                _riptideServer.Stop();
+                IsStopping = false;
+                IsRunning = false;
+
                 OnStatusChanged?.Invoke();
                 
                 Logger.LogInfo(Tag,"Server stoped");

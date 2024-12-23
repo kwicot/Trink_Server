@@ -162,6 +162,8 @@ namespace Trink_RiptideServer.Library.StateMachine
             {
                 if (_currentState == turnState)
                 {
+                    RoomController.Seats[seatIndex].SeatData.LastBet = value;
+                    
                     RoomController.SendToAll(CreateMessage(ServerToClientId.seatTurn)
                         .AddInt(seatIndex)
                         .AddInt(value)
@@ -193,6 +195,12 @@ namespace Trink_RiptideServer.Library.StateMachine
             {
                 turnState.OnPlayerRemove(seatIndex);
             }
+        }
+
+        public void OnPlayerLoaded(int seatIndex)
+        {
+            if(_currentState == turnState)
+                turnState.OnPlayerLoaded(seatIndex);
         }
         
         public void OnSeatCheckCards(int seatIndex)
@@ -232,19 +240,34 @@ namespace Trink_RiptideServer.Library.StateMachine
             DealEnd = false;
             IsHideTurn = true;
             LapTurns = 0;
+            foreach (var seat in RoomController.Seats)
+            {
+                if (seat.SeatData != null)
+                    seat.SeatData.LastBet = -1;
+            }
         
             BetsData.Bets.Clear();
+            
+            SendData();
         
            SetState<WaitingState>();
         }
 
         public async Task OnServerStopping()
         {
-            if (_currentState == calcState || _currentState == withdrawState || _currentState == endState)
+            if (_currentState == calcState)
             {
                 await _currentState.ProcessServerStopping();
+                
+                foreach (var seat in RoomController.Seats)
+                {
+                    if (!seat.IsFree && seat.SeatData != null)
+                    {
+                        await seat.RemovePlayer(false, true);
+                    }
+                }
             }
-            else if (_currentState == turnState)
+            else
             {
                 foreach (var betData in BetsData.Bets)
                 {
@@ -252,7 +275,7 @@ namespace Trink_RiptideServer.Library.StateMachine
                     if (seat != null)
                     {
                         seat.Return(betData.Value);
-                        await seat.RemovePlayer(false);
+                        await seat.RemovePlayer(false, true);
                     }
                 }
             }

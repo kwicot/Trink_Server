@@ -50,6 +50,7 @@ namespace Trink_RiptideServer.Library.StateMachine
 
         async Task Wait()
         {
+            _stateMachine.DealEnd = false;
             _stateMachine.SendData();
             
             foreach (var seat in _stateMachine.RoomController.Seats)

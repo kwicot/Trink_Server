@@ -22,7 +22,12 @@ namespace WindowsFormsApp1
 
         private void OnServerStatusChange()
         {
+            button_start.Enabled = !Server.Core.Server.IsRunning && !Server.Core.Server.IsStopping;
+            button_stop.Enabled = Server.Core.Server.IsRunning && !Server.Core.Server.IsStopping;
+
             label_status.Text = Server.Core.Server.IsRunning ? "Running" : "Stopped";
+            if (Server.Core.Server.IsStopping)
+                label_status.Text = "Stopping...";
         }
 
         private async void button_start_Click(object sender, EventArgs e)

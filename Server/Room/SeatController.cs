@@ -76,6 +76,8 @@ namespace Server.Core.Rooms
 
         public void ReturnPlayer(ClientData newClientData)
         {
+            Logger.LogInfo(Tag,"Return");
+            
             SeatData.ClientId = newClientData.ClientID;
             ClientData = newClientData;
 
@@ -85,32 +87,41 @@ namespace Server.Core.Rooms
             if(WaitingTopUpBalance)
                 OfferToTopUpBalance();
         }
-        public async Task RemovePlayer(bool waiting)
+        public async Task RemovePlayer(bool waiting, bool force = false)
         {
-            UserData.Balance += SeatData.Balance;
-            await UsersDatabase.UpdateUserData(UserData);
             Waiting = waiting;
+
+            if (force)
+            {
+                await OnLeft();
+                return;
+            }
             
             if (RoomController.StateMachine.PlaySeats.Contains(Index))
             {
                 Logger.LogInfo(Tag, "Out");
                 SeatData.IsOut = true;
+                SendData();
             }
             else
             {
-                OnLeft();
+                await OnLeft();
             }
-            
-            SendData();
         }
 
-        void OnLeft()
+        async Task OnLeft()
         {
-            Logger.LogInfo(Tag, "OnLeft");
+            if (UserData != null)
+            {
+                UserData.Balance += SeatData.Balance;
+                await UsersDatabase.UpdateUserData(UserData);
+            }
+            
             SeatData = null;
             UserData = null;
             ClientData = null;
             WaitingTopUpBalance = false;
+            SendData();
         }
         
 
@@ -246,8 +257,8 @@ namespace Server.Core.Rooms
         {
              if(SeatData == null || SeatData.IsOut)
                 OnLeft();
-             
-             SendData();
+             else
+                SendData();
         }
 
         #region Message
